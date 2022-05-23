@@ -409,8 +409,6 @@ jobs:
 
       - name: Set custom and status fields
         if: steps.skip-update.outcome == 'skipped'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_NEW_CARD_TO_PROJECT }}
         run: |
           gh api graphql -f query='
             mutation (
