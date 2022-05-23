@@ -1,4 +1,7 @@
-default.locale="en"
+default.locale="en-gb"
 
-[default.extend-words]
-abcde = "abcde"
+default.check-filename=true
+
+default.check-file=true
+
+files.extend-exclude=["abcde"]
