@@ -3,10 +3,13 @@
 
 name: 'spellcheck'
 
-"on": push
-    paths:
-      - '**.**.md'
-      - '**.README'
+"on":
+  push:
+    branches:
+      - '**'
+      paths:
+        - '**.**.md'
+        - '**.README'
 
 jobs:
   spellcheck:
