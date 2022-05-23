@@ -20,7 +20,7 @@ jobs:
           config_file: .github/workflows/config/.yamllintconfig.yml
 
   markdown-spellcheck:
-  stage: linting
-  image: registry.gitlab.com/pipeline-components/markdown-spellcheck:latest
-  script:
-    - mdspell --report '**/*.md'
+    stage: linting
+    image: registry.gitlab.com/pipeline-components/markdown-spellcheck:latest
+    script:
+      - mdspell --report '**/*.md'
