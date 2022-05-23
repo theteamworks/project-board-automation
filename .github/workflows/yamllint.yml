@@ -15,4 +15,4 @@ jobs:
       - name: yaml-lint
         uses: ibiqlik/action-yamllint@v3.1.0
         with:
-          config_file: ../actions/yamllintconfig.yml
+          config_file: actions/yamllintconfig.yml
