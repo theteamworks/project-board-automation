@@ -1,0 +1,5 @@
+
+---
+
+
+config_data: "{extends: default, rules: {line-length: disable}}"
