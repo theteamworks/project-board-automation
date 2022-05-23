@@ -11,7 +11,7 @@ matrix:
     - wordlist.txt
     encoding: utf-8
   pipeline:
-  - pyspelling.filters.markdown:
+    - pyspelling.filters.markdown:
       markdown_extensions:
       - pymdownx.superfences:
   sources:
