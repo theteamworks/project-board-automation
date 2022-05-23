@@ -1,6 +1,6 @@
 matrix:
 - name: Markdown
-  hunspell:
+  aspell:
     lang: en
     d: en_GB
   dictionary:
