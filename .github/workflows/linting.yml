@@ -18,9 +18,3 @@ jobs:
         uses: ibiqlik/action-yamllint@v3.1.0
         with:
           config_file: .github/workflows/config/.yamllintconfig.yml
-
-  markdown-spellcheck:
-    stage: linting
-    image: registry.gitlab.com/pipeline-components/markdown-spellcheck:latest
-    script:
-      - mdspell --report '**/*.md'
