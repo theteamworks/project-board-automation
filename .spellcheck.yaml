@@ -9,10 +9,16 @@ matrix:
     output: wordlist.dic
     encoding: utf-8
   pipeline:
-  - pyspelling.parsers.markdown_parser:
-      markdown_extensions:
-      - markdown.extensions.admonition
-      - markdown.extensions.smarty
+  - pyspelling.filters.markdown:
+  - pyspelling.filters.context:
+      context_visible_first: true
+      delimiters:
+      # Ignore multiline content between fences (fences can have 3 or more back ticks)
+      - open: '(?s)^(?P<open> *`{3,})$'
+        close: '^(?P=open)$'
+      # Ignore text between inline back ticks
+      - open: '(?P<open>`+)'
+        close: '(?P=open)'
   sources:
   - '**/*.md'
   expect_match: true
