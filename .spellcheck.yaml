@@ -9,7 +9,7 @@ matrix:
     output: wordlist.dic
     encoding: utf-8
   pipeline:
-  - pyspelling.filters.markdown:
+  - pyspelling.filters.context:
       delimiters:
       # Ignore multiline content between fences (fences can have 3 or more back ticks)
       - open: '(?s)^(?P<open> *`{3,})$'
