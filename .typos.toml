@@ -1,7 +1,0 @@
-default.locale="en-gb"
-
-default.check-filename=true
-
-default.check-file=true
-
-files.extend-exclude=["abcde"]

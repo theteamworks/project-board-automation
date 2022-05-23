@@ -1,7 +1,8 @@
 matrix:
 - name: Markdown
   apsell:
-    mode: none
+    lang: en
+    d: en_GB
   dictionary:
     wordlists:
     - wordlist.txt
@@ -9,8 +10,6 @@ matrix:
     encoding: utf-8
   pipeline:
   - pyspelling.filters.markdown:
-  - pyspelling.filters.html:
-  - pyspelling.filters.text:
   sources:
   - '**/*.md'
   expect_match: true
