@@ -1,0 +1,4 @@
+default.locale=en
+
+[default.extend-words]
+abcde = "abcde"

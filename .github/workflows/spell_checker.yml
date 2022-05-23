@@ -8,14 +8,15 @@ name: 'Spellcheck action'
     branches:
       - '**'
 jobs:
-  build:
-    name: Spellcheck
+  run:
+    name: Spell Check with Typos
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout Actions Repository
+      uses: actions/checkout@v2
 
-    - uses: rojopolis/spellcheck-github-actions@0.24.0
-      name: Spellcheck
-      with:
-        config_path: config/.spellcheck.yaml # put path to configuration file here
-        task_name: Markdown
+    - name: Use custom config file
+      uses: crate-ci/typos@v1.8.1
+      with: 
+        files: **/**.md
+        config: config/.typos.toml
