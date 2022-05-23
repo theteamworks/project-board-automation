@@ -1,0 +1,60 @@
+---
+
+
+name: 'Linting and spelling'
+
+"on":
+  push:
+    branches:
+      - '**'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  yamllint:
+    name: Yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: yaml-lint
+        uses: ibiqlik/action-yamllint@v3.1.0
+        with:
+          config_file: .github/workflows/config/.yamllintconfig.yml
+
+  markdownlint:
+    name: Markdownlint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: nosborn/github-action-markdown-cli@v3.0.1
+      name: Markdownlint
+      with:
+        files: .
+        config_file: ".markdownlint.json"
+
+  spellcheck:
+    name: Spellcheck
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out
+      uses: actions/checkout@v2
+
+    - name: Run PySpelling
+      uses: rojopolis/spellcheck-github-actions@0.24.0
+      with:
+        task_name: Markdown
+
+  conventional-commits:
+    name: Verify conventional commits
+    runs-on: ubuntu-latest
+    if true == false
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Commitsar conventional commits check
+        if: steps.check-out.outcome == 'success'
+        uses: aevea/commitsar@v0.18.0
