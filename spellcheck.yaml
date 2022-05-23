@@ -13,7 +13,7 @@ matrix:
   pipeline:
   - pyspelling.filters.markdown:
   markdown_extensions:
-    - pymdownx.superfences
+    - pymdownx.superfences:
   - pyspelling.filters.context:
       context_visible_first: true
       escapes: \\[\\`~]
