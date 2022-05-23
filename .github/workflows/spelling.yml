@@ -7,9 +7,9 @@ name: 'spellcheck'
   push:
     branches:
       - '**'
-      paths:
-        - '**.**.md'
-        - '**.README'
+    paths:
+      - '**.**.md'
+      - '**.README'
 
 jobs:
   spellcheck:
