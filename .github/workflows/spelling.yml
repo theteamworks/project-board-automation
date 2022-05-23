@@ -1,20 +1,20 @@
 ---
 
 
-name: 'Check spelling'
+name: 'spellcheck'
 
 "on":
   push:
     paths:
-      - '**.md'
-      - 'README'
+      - '**.**.md'
+      - '**.README'
+
 jobs:
-  spelling:
+  spellcheck:
+    name: runner / spellcheck
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: ${{ github.head_ref }}
-
-    - name: Check Spelling
-      uses: UnicornGlobal/spellcheck-github-actions@0.4.0
+    - name: Check out code.
+      uses: actions/checkout@v2
+    - name: Run PySpelling as a GitHub action
+      uses: sbates130272/spellcheck-github-actions@v0.6.0
