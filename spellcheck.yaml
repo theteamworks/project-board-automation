@@ -13,7 +13,7 @@ matrix:
   pipeline:
   - pyspelling.filters.markdown:
   markdown_extensions:
-  - pymdownx.superfences:
+    - pymdownx.superfences:
   sources:
   - '**/*.md'
   expect_match: true
