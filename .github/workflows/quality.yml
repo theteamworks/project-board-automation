@@ -48,7 +48,7 @@ jobs:
   conventional-commits:
     name: Verify conventional commits
     runs-on: ubuntu-latest
-    if true == false
+    if: true == false
     steps:
       - name: Check out
         uses: actions/checkout@v2
