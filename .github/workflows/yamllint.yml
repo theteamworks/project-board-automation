@@ -4,7 +4,9 @@
 name: 'Yamllint'
 
 "on":
-  - pull_request
+  push:
+    branches:
+      - '**'
 
 jobs:
   yamllint:
