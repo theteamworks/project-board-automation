@@ -9,7 +9,7 @@ name: 'Spellcheck action'
       - '**'
 jobs:
   spellcheck:
-    name: runner / spellcheck
+    name: Spellcheck
     runs-on: ubuntu-latest
     steps:
     - name: Check out

@@ -1,6 +1,6 @@
 matrix:
 - name: Markdown
-  apsell:
+  hunspell:
     lang: en
     d: en_GB
   dictionary:
@@ -11,9 +11,6 @@ matrix:
   pipeline:
   - pyspelling.parsers.markdown_parser:
       markdown_extensions:
-      - markdown.extensions.toc:
-          slugify: !!python/name:pymdownx.slugs.uslugify
-          permalink: "\ue157"
       - markdown.extensions.admonition
       - markdown.extensions.smarty
   sources:
