@@ -18,5 +18,5 @@ jobs:
     - name: Use custom config file
       uses: crate-ci/typos@v1.8.1
       with: 
-        files: '**/**.md'
+        files: ["**/**.md"]
         config: .typos.toml
