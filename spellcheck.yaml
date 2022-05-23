@@ -3,7 +3,7 @@ matrix:
   sources:
   - '!venv/**/*.md|**/*.md'
   default_encoding: utf-8
-  aspell:
+  hunspell:
     lang: en
     d: en_GB
   dictionary:
