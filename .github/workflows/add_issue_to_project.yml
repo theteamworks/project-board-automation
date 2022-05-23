@@ -1,0 +1,42 @@
+---
+
+name: 'Add issue to project board'
+
+"on":
+  issues:
+    types:
+      - opened
+env:
+  GITHUB_TOKEN: ${{ secrets.BOARD_AUTOMATION }}
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  ISSUE_ID: ${{ github.event.issue.node_id }}
+  LABEL_ID: ${{ secrets.REPO_LABEL }}
+  USER: ${{ github.actor }}
+
+jobs:
+  add-to-project-board:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add issue to project board
+        run: |
+          gh api graphql -f query='
+            mutation($project:ID!, $issue:ID!) {
+              addProjectNextItem(input: {projectId: $project, contentId: $issue}) {
+                projectNextItem {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectNextItem.projectNextItem.id'
+
+      - name: Add repo identify label
+        run: |
+          gh api graphql -f query='
+            mutation($user:String!, $issue:ID!, $label:ID!) {
+              addLabelsToLabelable(input: {clientMutationId: $user, labelable: $issue, labellds: $label}) {
+                clientMutationId
+                labelable
+                labellds
+              }
+            }' -f label=$LABEL_ID -f issue=$ISSUE_ID -f user=$USER --jq '.data.addProjectNextItem.projectNextItem.id'
