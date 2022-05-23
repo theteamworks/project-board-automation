@@ -16,4 +16,6 @@ jobs:
       uses: actions/checkout@v2
     - name: Run PySpelling
       uses: rojopolis/spellcheck-github-actions@0.24.0
-      task_name: Markdown
+      with:
+        task_name: Markdown
+        output_file: spellcheck-output.txt
