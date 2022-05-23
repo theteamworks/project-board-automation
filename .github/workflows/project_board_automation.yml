@@ -5,7 +5,7 @@ name: 'Project board automation'
 
 "on":
   pull_request:
-    branches: [develop, master]
+    branches: [main]
     types: [edited, synchronize, opened, reopened, labeled, unlabeled, ready_for_review, review_requested, converted_to_draft]
   pull_request_review:
     types: [submitted]
@@ -47,8 +47,6 @@ jobs:
       - name: Get linked issue id and state
         id: linked-issue
         # yamllint disable rule:line-length
-        env:
-            GITHUB_TOKEN: ${{ secrets.GORD_TEST }}
         run: |
           gh api graphql -f query='
             query($pr_url: URI!) {
@@ -137,8 +135,7 @@ jobs:
     needs: linked-issue
     runs-on: ubuntu-latest
     # TODO check these permissions
-    permissions:
-      permissions: write-all
+    permissions: write-all
     env:
       LINKED_ISSUE_STATE: ${{needs.linked-issue.outputs.issue_state}}
       LINKED_ISSUE_ID: ${{needs.linked-issue.outputs.issue_id}}
@@ -412,8 +409,6 @@ jobs:
 
       - name: Set custom and status fields
         if: steps.skip-update.outcome == 'skipped'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_NEW_CARD_TO_PROJECT }}
         run: |
           gh api graphql -f query='
             mutation (
