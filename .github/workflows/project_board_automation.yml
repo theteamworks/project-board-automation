@@ -47,8 +47,6 @@ jobs:
       - name: Get linked issue id and state
         id: linked-issue
         # yamllint disable rule:line-length
-        env:
-            GITHUB_TOKEN: ${{ secrets.GORD_TEST }}
         run: |
           gh api graphql -f query='
             query($pr_url: URI!) {
