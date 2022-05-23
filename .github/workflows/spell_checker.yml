@@ -1,22 +1,21 @@
 ---
 
 
-name: 'spellcheck'
+name: 'Spellcheck action'
 
 "on":
   push:
     branches:
       - '**'
-    paths:
-      - '**.**.md'
-      - '**.README'
-
 jobs:
-  spellcheck:
-    name: runner / spellcheck
+  build:
+    name: Spellcheck
     runs-on: ubuntu-latest
     steps:
-    - name: Check out code.
-      uses: actions/checkout@v2
-    - name: Run PySpelling as a GitHub action
-      uses: sbates130272/spellcheck-github-actions@v0.6.0
+    - uses: actions/checkout@master
+    - uses: rojopolis/spellcheck-github-actions@0.24.0
+      name: Spellcheck
+      with:
+        config_path: .github/workflows/actions/.spellcheck.yml # put path to configuration file here
+        source_files: README.md
+        task_name: Markdown
