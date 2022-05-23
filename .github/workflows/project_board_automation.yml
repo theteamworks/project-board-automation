@@ -137,8 +137,7 @@ jobs:
     needs: linked-issue
     runs-on: ubuntu-latest
     # TODO check these permissions
-    permissions:
-      permissions: write-all
+    permissions: write-all
     env:
       LINKED_ISSUE_STATE: ${{needs.linked-issue.outputs.issue_state}}
       LINKED_ISSUE_ID: ${{needs.linked-issue.outputs.issue_id}}
