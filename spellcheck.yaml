@@ -12,8 +12,8 @@ matrix:
     encoding: utf-8
   pipeline:
   - pyspelling.filters.markdown:
-    markdown_extensions:
-    - pymdownx.superfences:
+  markdown_extensions:
+  - pymdownx.superfences:
   sources:
   - '**/*.md'
   expect_match: true
