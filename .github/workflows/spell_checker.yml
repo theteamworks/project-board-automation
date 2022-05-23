@@ -15,4 +15,5 @@ jobs:
     - name: Check out
       uses: actions/checkout@v2
     - name: Run PySpelling
-      uses: sbates130272/spellcheck-github-actions@v0.7.0
+      uses: rojopolis/spellcheck-github-actions@0.24.0
+      task_name: Markdown
