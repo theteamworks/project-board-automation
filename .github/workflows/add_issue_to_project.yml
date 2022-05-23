@@ -36,6 +36,5 @@ jobs:
             mutation($user:String!, $issue:ID!, $label:[ID!]!) {
               addLabelsToLabelable(input: {clientMutationId: $user, labelableId: $issue, labelIds: $label}) {
                 clientMutationId
-                labelable
               }
             }' -f label=$LABEL_ID -f issue=$ISSUE_ID -f user=$USER --jq '.data.addProjectNextItem.projectNextItem.id'
