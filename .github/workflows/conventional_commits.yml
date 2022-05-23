@@ -16,14 +16,6 @@ jobs:
   # Uses https://github.com/aevea/commitsar
   conventional-commits:
     name: Verify conventional commits
-    if: |
-      contains(github.event.*.name, 'edited') == true ||
-      contains(github.event.*.name, 'synchronize') == true ||
-      contains(github.event.*.name, 'opened') == true ||
-      contains(github.event.*.name, 'reopened') == true ||
-      contains(github.event.*.name, 'ready_for_review') == true ||
-      contains(github.event.*.name, 'converted_to_draft') == true ||
-      contains(github.event.*.name, 'ready_for_review') == true
     runs-on: ubuntu-latest
     steps:
       - name: Check out
