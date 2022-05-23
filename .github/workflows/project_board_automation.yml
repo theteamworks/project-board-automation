@@ -26,7 +26,7 @@ env:
   REVIEW_REQUIRED_COLUMN_NAME: '"REVIEW_REQUIRED"'
   CHANGES_REQUESTED_COLUMN_NAME: '"CHANGES_REQUESTED"'
   APPROVED_COLUMN_NAME: '"APPROVED"'
-  ITERATION_FIELD_NAME: Iteration # See project settings (default is `Iteration`)
+  ITERATION_FIELD_NAME: Iteration   # See project settings (default is `Iteration`)
 
 jobs:
 
