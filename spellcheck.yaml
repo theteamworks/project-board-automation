@@ -11,9 +11,9 @@ matrix:
     - wordlist.txt
     encoding: utf-8
   pipeline:
-    - pyspelling.filters.markdown:
-      markdown_extensions:
-      - pymdownx.superfences:
+  - pyspelling.filters.markdown:
+    markdown_extensions:
+    - pymdownx.superfences:
   sources:
   - '**/*.md'
   expect_match: true
