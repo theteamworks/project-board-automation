@@ -82,8 +82,8 @@ jobs:
         id: linked
         if: |
           env.LINKED_ISSUE_ID != '' &&
-          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true ||
+          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT) == true)
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -95,8 +95,8 @@ jobs:
         id: exclude-linked
         if: |
           env.LINKED_ISSUE_ID == '' &&
-          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true ||
+          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT) == true)
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -108,8 +108,8 @@ jobs:
         id: exclude-linked-error
         if: |
           env.LINKED_ISSUE_ID == '' &&
-          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true ||
+          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT) == true)
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -122,8 +122,8 @@ jobs:
         id: linked-and-nochangelog
         if: |
           env.LINKED_ISSUE_ID != '' &&
-          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true ||
+          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT) == true)
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
