@@ -107,9 +107,9 @@ jobs:
       - name: Check for linked issue exclusion error
         id: exclude-linked-error
         if: |
-          ((env.LINKED_ISSUE_ID == '') &&
-          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true) ||
-          (!startsWith(github.head_ref, 'dependabot/') == true))
+          env.LINKED_ISSUE_ID == '' &&
+          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true ||
+          startsWith(github.head_ref, 'dependabot/') != true)
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
