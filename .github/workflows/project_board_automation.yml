@@ -22,7 +22,6 @@ env:
   PR_URL: ${{ github.event.pull_request.html_url }}
   GITHUB_TOKEN: ${{ secrets.BOARD_AUTOMATION }}
   EXCLUDE_LABEL: 'no-issue'
-  DEPENDABOT: 'dependencies'
   IN_PROGRESS_COLUMN_NAME: '"IN_PROGRESS"'
   REVIEW_REQUIRED_COLUMN_NAME: '"REVIEW_REQUIRED"'
   CHANGES_REQUESTED_COLUMN_NAME: '"CHANGES_REQUESTED"'
@@ -81,10 +80,10 @@ jobs:
       - name: Check for linked issue
         id: linked
         if: |
-          (env.LINKED_ISSUE_ID != '' &&
-          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
-          (env.LINKED_ISSUE_ID != '' &&
-          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          env.LINKED_ISSUE_ID != '' &&
+          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          !startsWith(github.head_ref, 'dependabot/')
+
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -95,10 +94,9 @@ jobs:
       - name: Check for allowed linked issue exclusion
         id: exclude-linked
         if: |
-          (env.LINKED_ISSUE_ID == '' &&
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
-          (env.LINKED_ISSUE_ID == '' &&
-          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          env.LINKED_ISSUE_ID == '' &&
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          startsWith(github.head_ref, 'dependabot/')
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -109,10 +107,9 @@ jobs:
       - name: Check for linked issue exclusion error
         id: exclude-linked-error
         if: |
-          (env.LINKED_ISSUE_ID == '' &&
-          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
-          (env.LINKED_ISSUE_ID == '' &&
-          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          env.LINKED_ISSUE_ID == '' &&
+          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          !startsWith(github.head_ref, 'dependabot/')
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -124,10 +121,9 @@ jobs:
       - name: Check for linked issue with no-issue label
         id: linked-and-nochangelog
         if: |
-          (env.LINKED_ISSUE_ID != '' &&
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
-          (env.LINKED_ISSUE_ID != '' &&
-          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          env.LINKED_ISSUE_ID != '' &&
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          startsWith(github.head_ref, 'dependabot/')
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -244,10 +240,9 @@ jobs:
       - name: Add linked issue to the project
         id: issue-to-project
         if: |
-          (env.LINKED_ISSUE_ID != '' &&
-          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
-          (env.LINKED_ISSUE_ID != '' &&
-          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          env.LINKED_ISSUE_ID != '' &&
+          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          !startsWith(github.head_ref, 'dependabot/')
         # yamllint disable rule:line-length
         run: |
           issue_item_id="$( gh api graphql -f query='
@@ -264,10 +259,9 @@ jobs:
       - name: Add no-issue PR to the project
         id: pr-to-project
         if: |
-          (steps.issue-to-project.outcome == 'skipped'  &&
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
-          (steps.issue-to-project.outcome == 'skipped'  &&
-          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
+          steps.issue-to-project.outcome == 'skipped'  &&
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          startsWith(github.head_ref, 'dependabot/')
         # yamllint disable rule:line-length
         run: |
           pr_item_id="$( gh api graphql -f query='
