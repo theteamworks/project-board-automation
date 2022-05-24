@@ -81,8 +81,8 @@ jobs:
         id: linked
         if: |
           env.LINKED_ISSUE_ID != '' &&
-          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          !startsWith(github.head_ref, 'dependabot/') == true
+          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          (startsWith(github.head_ref, 'dependabot/') == false))
 
         uses: actions/github-script@0.9.0
         with:
@@ -95,8 +95,8 @@ jobs:
         id: exclude-linked
         if: |
           env.LINKED_ISSUE_ID == '' &&
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          startsWith(github.head_ref, 'dependabot/') == true
+          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          (startsWith(github.head_ref, 'dependabot/') == true))
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -108,8 +108,8 @@ jobs:
         id: exclude-linked-error
         if: |
           env.LINKED_ISSUE_ID == '' &&
-          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          !startsWith(github.head_ref, 'dependabot/')
+          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          (startsWith(github.head_ref, 'dependabot/') == false))
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -122,8 +122,8 @@ jobs:
         id: linked-and-nochangelog
         if: |
           env.LINKED_ISSUE_ID != '' &&
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          startsWith(github.head_ref, 'dependabot/') == true
+          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          (startsWith(github.head_ref, 'dependabot/') == true))
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -241,8 +241,8 @@ jobs:
         id: issue-to-project
         if: |
           env.LINKED_ISSUE_ID != '' &&
-          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          !startsWith(github.head_ref, 'dependabot/') == true
+          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          (startsWith(github.head_ref, 'dependabot/') == false))
         # yamllint disable rule:line-length
         run: |
           issue_item_id="$( gh api graphql -f query='
@@ -260,8 +260,8 @@ jobs:
         id: pr-to-project
         if: |
           steps.issue-to-project.outcome == 'skipped'  &&
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
-          startsWith(github.head_ref, 'dependabot/') == true
+          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          (startsWith(github.head_ref, 'dependabot/') == true))
         # yamllint disable rule:line-length
         run: |
           pr_item_id="$( gh api graphql -f query='
