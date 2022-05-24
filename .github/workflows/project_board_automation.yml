@@ -81,9 +81,10 @@ jobs:
       - name: Check for linked issue
         id: linked
         if: |
-          env.LINKED_ISSUE_ID != '' &&
-          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true ||
-          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT) == true)
+          (env.LINKED_ISSUE_ID != '' &&
+          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
+          (env.LINKED_ISSUE_ID != '' &&
+          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -94,9 +95,10 @@ jobs:
       - name: Check for allowed linked issue exclusion
         id: exclude-linked
         if: |
-          env.LINKED_ISSUE_ID == '' &&
-          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true ||
-          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT) == true)
+          (env.LINKED_ISSUE_ID == '' &&
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
+          (env.LINKED_ISSUE_ID == '' &&
+          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -107,9 +109,10 @@ jobs:
       - name: Check for linked issue exclusion error
         id: exclude-linked-error
         if: |
-          env.LINKED_ISSUE_ID == '' &&
-          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true ||
-          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT) == true)
+          (env.LINKED_ISSUE_ID == '' &&
+          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
+          (env.LINKED_ISSUE_ID == '' &&
+          !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -121,9 +124,10 @@ jobs:
       - name: Check for linked issue with no-issue label
         id: linked-and-nochangelog
         if: |
-          env.LINKED_ISSUE_ID != '' &&
-          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true ||
-          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT) == true)
+          (env.LINKED_ISSUE_ID != '' &&
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
+          (env.LINKED_ISSUE_ID != '' &&
+          contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -240,8 +244,9 @@ jobs:
       - name: Add linked issue to the project
         id: issue-to-project
         if: |
-          env.LINKED_ISSUE_ID != '' &&
-          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          (env.LINKED_ISSUE_ID != '' &&
+          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
+          (env.LINKED_ISSUE_ID != '' &&
           !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
         # yamllint disable rule:line-length
         run: |
@@ -259,8 +264,9 @@ jobs:
       - name: Add no-issue PR to the project
         id: pr-to-project
         if: |
-          steps.issue-to-project.outcome == 'skipped'  &&
-          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) ||
+          (steps.issue-to-project.outcome == 'skipped'  &&
+          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
+          (steps.issue-to-project.outcome == 'skipped'  &&
           contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
         # yamllint disable rule:line-length
         run: |
