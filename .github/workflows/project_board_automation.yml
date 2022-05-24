@@ -38,6 +38,8 @@ jobs:
   linked-issue:
     name: Verfiy linked issue status
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.BOARD_AUTOMATION }}
     permissions: write-all
     outputs:
       issue_id: ${{ steps.linked-issue.outputs.linked-issue-id }}
@@ -78,8 +80,9 @@ jobs:
       - name: Check for linked issue
         id: linked
         if: |
-          env.LINKED_ISSUE_ID != '' &&
-          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)
+          env.LINKED_ISSUE_ID != '' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true && 
+          startsWith(github.head_ref, 'dependabot/') != true
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -90,8 +93,9 @@ jobs:
       - name: Check for allowed linked issue exclusion
         id: exclude-linked
         if: |
-          env.LINKED_ISSUE_ID == '' &&
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)
+          startsWith(github.head_ref, 'dependabot/') == true || 
+          (env.LINKED_ISSUE_ID == '' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true)
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -102,8 +106,8 @@ jobs:
       - name: Check for linked issue exclusion error
         id: exclude-linked-error
         if: |
-          env.LINKED_ISSUE_ID == '' &&
-          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)
+          env.LINKED_ISSUE_ID == '' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -115,8 +119,8 @@ jobs:
       - name: Check for linked issue with no-issue label
         id: linked-and-nochangelog
         if: |
-          env.LINKED_ISSUE_ID != '' &&
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)
+          env.LINKED_ISSUE_ID != '' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -233,8 +237,8 @@ jobs:
       - name: Add linked issue to the project
         id: issue-to-project
         if: |
-          env.LINKED_ISSUE_ID != '' &&
-          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)
+          env.LINKED_ISSUE_ID != '' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
         # yamllint disable rule:line-length
         run: |
           issue_item_id="$( gh api graphql -f query='
@@ -251,8 +255,9 @@ jobs:
       - name: Add no-issue PR to the project
         id: pr-to-project
         if: |
-          steps.issue-to-project.outcome == 'skipped'  &&
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)
+          startsWith(github.head_ref, 'dependabot/') == true || 
+          (steps.issue-to-project.outcome == 'skipped' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true)
         # yamllint disable rule:line-length
         run: |
           pr_item_id="$( gh api graphql -f query='
@@ -318,8 +323,8 @@ jobs:
       - name: Move linked-issue to review required
         id: linked-issue-review-required
         if: |
-          (steps.issue-to-project.outcome == 'success') && (steps.pr-to-project.outcome == 'skipped')
-          && (env.LATEST_REVIEW_STATE == '') && (env.IS_PR_DRAFT == 'false')
+          steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped' 
+          && env.LATEST_REVIEW_STATE == '' && env.IS_PR_DRAFT == 'false'
         run: |
           echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
@@ -328,8 +333,8 @@ jobs:
       - name: Move no-issue PR to review required
         id: pr-nochangelog-review-required
         if: |
-          (steps.pr-to-project.outcome == 'success') && (steps.issue-to-project.outcome == 'skipped')
-          && (env.LATEST_REVIEW_STATE == '') && (env.IS_PR_DRAFT == 'false')
+          steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped' 
+          && env.LATEST_REVIEW_STATE == '' && env.IS_PR_DRAFT == 'false'
         run: |
           echo 'ITEM_ID='$PR_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
@@ -341,8 +346,8 @@ jobs:
       - name: Move linked-issue to changes requested 
         id: linked-issue-changes-requested
         if: |
-          (steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped')
-          && (env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"'
+          steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped' 
+          && (env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"' 
           || (env.LATEST_REVIEW_STATE == '"APPROVED"' && env.NUM_REVIEWS < env.REVIEWS_REQUIRED)) 
           && env.IS_PR_DRAFT == 'false'
         run: |
@@ -353,8 +358,8 @@ jobs:
       - name: Move no-issue PR to changes requested
         id: pr-nochangelog-changes-requested 
         if: |
-          (steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped')
-          && (env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"'
+          steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped' 
+          && (env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"' 
           || (env.LATEST_REVIEW_STATE == '"APPROVED"' && env.NUM_REVIEWS < env.REVIEWS_REQUIRED)) 
           && env.IS_PR_DRAFT == 'false'
         run: |
@@ -368,9 +373,9 @@ jobs:
       - name: Move linked-issue to approved 
         id: linked-issue-approved
         if: |
-          (steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped')
-          && (env.LATEST_REVIEW_STATE == '"APPROVED"') && env.IS_PR_DRAFT == 'false'
-          && (env.NUM_REVIEWS >= env.REVIEWS_REQUIRED)
+          steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped' 
+          && env.LATEST_REVIEW_STATE == '"APPROVED"' && env.IS_PR_DRAFT == 'false' 
+          && env.NUM_REVIEWS >= env.REVIEWS_REQUIRED
         run: |
           echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
@@ -379,9 +384,9 @@ jobs:
       - name: Move no-issue PR to approved
         id: pr-nochangelog-approved 
         if: |
-          (steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped')
-          && (env.LATEST_REVIEW_STATE == '"APPROVED"') && env.IS_PR_DRAFT == 'false'
-          && (env.NUM_REVIEWS >= env.REVIEWS_REQUIRED)
+          steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped'
+          && env.LATEST_REVIEW_STATE == '"APPROVED"' && env.IS_PR_DRAFT == 'false'
+          && env.NUM_REVIEWS >= env.REVIEWS_REQUIRED
         run: |
           echo 'ITEM_ID='$PR_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
@@ -393,7 +398,7 @@ jobs:
       - name: Abort update as review dismissed or pending 
         id: skip-update
         if: |
-          (steps.issue-to-project.outcome == 'success' || steps.pr-to-project.outcome == 'success')
+          (steps.issue-to-project.outcome == 'success' || steps.pr-to-project.outcome == 'success') 
           && (env.LATEST_REVIEW_STATE == '"PENDING"' || env.LATEST_REVIEW_STATE == '"DISMISSED"') && env.IS_PR_DRAFT != 'true'
         uses: actions/github-script@0.9.0
         with:
