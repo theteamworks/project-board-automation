@@ -245,7 +245,7 @@ jobs:
         id: issue-to-project
         if: |
           (env.LINKED_ISSUE_ID != '' &&
-          (!contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
+          !contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
           (env.LINKED_ISSUE_ID != '' &&
           !contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
         # yamllint disable rule:line-length
@@ -265,7 +265,7 @@ jobs:
         id: pr-to-project
         if: |
           (steps.issue-to-project.outcome == 'skipped'  &&
-          (contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL)) ||
           (steps.issue-to-project.outcome == 'skipped'  &&
           contains(github.event.pull_request.labels.*.name, env.DEPENDABOT))
         # yamllint disable rule:line-length
