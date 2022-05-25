@@ -80,9 +80,9 @@ jobs:
       - name: Check for linked issue
         id: linked
         if: |
-          env.LINKED_ISSUE_ID != '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true && 
-          ${{ github.actor != 'dependabot[bot]' }}
+          ${{ github.actor == 'dependabot[bot]' }} || 
+          (env.LINKED_ISSUE_ID != '' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true)
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -105,9 +105,7 @@ jobs:
 
       - name: Check for linked issue exclusion error
         id: exclude-linked-error
-        if: |
-          ${{ github.actor != 'dependabot[bot]' }} && env.LINKED_ISSUE_ID == '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
+        if: steps.linked.outcome == 'skipped' && steps.exclude-linked.outcome == 'skipped'
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -118,9 +116,7 @@ jobs:
 
       - name: Check for linked issue with no-issue label
         id: linked-and-nochangelog
-        if: |
-          env.LINKED_ISSUE_ID != '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
+        if: steps.linked.outcome == 'success' && steps.exclude-linked.outcome == 'success'
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
