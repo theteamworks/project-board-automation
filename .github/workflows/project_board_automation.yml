@@ -80,8 +80,7 @@ jobs:
       - name: Check for linked issue
         id: linked
         if: |
-          ${{ github.actor == 'dependabot[bot]' }} || 
-          (env.LINKED_ISSUE_ID != '' && 
+          env.LINKED_ISSUE_ID != '' && 
           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true)
         uses: actions/github-script@0.9.0
         with:
