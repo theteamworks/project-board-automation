@@ -11,31 +11,31 @@ matrix:
     - wordlist.txt
     encoding: utf-8
   pipeline:
-    - pyspelling.filters.html:
-      comments: true
-      attributes:
-      - title
-      - alt
-      ignores:
-      - ':matches(code, pre)'
-      - 'code'
-      - 'pre'
-    - pyspelling.filters.context:
-        context_visible_first: true
-        escapes: \\[\\`~]
-        delimiters:
-        # Ignore multiline content between fences (fences can have 3 or more back ticks)
-        # ```
-        # content
-        # ```
-        - open: '(?s)^(?P<open> *`{3,})$'
-          close: '^(?P=open)$'
-        # Ignore text between inline back ticks
-        - open: '(?P<open>`+)'
-          close: '(?P=open)'
-    - pyspelling.filters.markdown:
-    markdown_extensions:
-      - pymdownx.superfences:
+  - pyspelling.filters.context:
+      context_visible_first: true
+      escapes: \\[\\`~]
+      delimiters:
+      # Ignore multiline content between fences (fences can have 3 or more back ticks)
+      # ```
+      # content
+      # ```
+      - open: '(?s)^(?P<open> *`{3,})$'
+        close: '^(?P=open)$'
+      # Ignore text between inline back ticks
+      - open: '(?P<open>`+)'
+        close: '(?P=open)'
+  - pyspelling.filters.markdown:
+  markdown_extensions:
+    - pymdownx.superfences:
+  - pyspelling.filters.html:
+        comments: true
+        attributes:
+        - title
+        - alt
+        ignores:
+        - ':matches(code, pre)'
+        - 'code'
+        - 'pre'
   sources:
   - '**/*.md'
   expect_match: true
