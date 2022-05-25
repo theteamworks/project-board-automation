@@ -14,6 +14,12 @@ env:
   USER: ${{ github.actor }}
 
 jobs:
+  
+  #######
+  ## Add issues to project
+  #######
+
+  # Adds any issue raised in this repo to the project board
   add-to-project-board:
     runs-on: ubuntu-latest
     permissions:
@@ -30,6 +36,11 @@ jobs:
               }
             }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectNextItem.projectNextItem.id'
 
+      #######
+      ## Add label to issues
+      #######
+
+      # Adds a label to the issue to help identify it on a project with issues from many repos
       - name: Add repo identify label
         run: |
           gh api graphql -f query='
