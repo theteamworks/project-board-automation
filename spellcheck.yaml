@@ -11,6 +11,15 @@ matrix:
     - wordlist.txt
     encoding: utf-8
   pipeline:
+  - pyspelling.filters.html:
+    comments: true
+    attributes:
+    - title
+    - alt
+    ignores:
+    - ':matches(code, pre)'
+    - 'code'
+    - 'pre'
   - pyspelling.filters.context:
       context_visible_first: true
       escapes: \\[\\`~]
@@ -27,15 +36,6 @@ matrix:
   - pyspelling.filters.markdown:
   markdown_extensions:
     - pymdownx.superfences:
-  - pyspelling.filters.html:
-        comments: true
-        attributes:
-        - title
-        - alt
-        ignores:
-        - ':matches(code, pre)'
-        - 'code'
-        - 'pre'
   sources:
   - '**/*.md'
   expect_match: true
