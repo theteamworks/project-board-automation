@@ -27,6 +27,15 @@ matrix:
   - pyspelling.filters.markdown:
   markdown_extensions:
     - pymdownx.superfences:
+  - pyspelling.filters.html:
+        comments: true
+        attributes:
+        - title
+        - alt
+        ignores:
+        - ':matches(code, pre)'
+        - 'code'
+        - 'pre'
   sources:
   - '**/*.md'
   expect_match: true
