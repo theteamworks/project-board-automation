@@ -3,6 +3,8 @@
 
 In order to use this the team will need to follow this process. The intention is that this is as process-light as it can be for the development team when devloping complex software products.
 
+## Guiding principals
+
 ### Planning with Issues
 
 ### Tasks (PRs) with no issues
