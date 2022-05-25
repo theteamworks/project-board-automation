@@ -400,7 +400,7 @@ jobs:
           echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.MERGED_COLUMN }} >> $GITHUB_ENV
       - name: Move no-changelog PR to approved
-        id: pr-nochangelog-approved 
+        id: pr-nochangelog-merged 
         if: |
           (steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped')
           && (env.LATEST_REVIEW_STATE == '"APPROVED"') && env.IS_PR_DRAFT == 'false'
