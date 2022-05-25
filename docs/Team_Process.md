@@ -13,6 +13,7 @@ In order to use this the team will need to follow this process. The intention is
 ### Pick a card from `TODO` and add your name(s) to it
 
 Follow:
+
 1. Pick a card from `TODO`
 1. Add your name(s) to it (pairing is cool)
 1. Work on your pull request (draft, reviews, changes, merge)
