@@ -77,15 +77,6 @@ jobs:
           echo 'LINKED_ISSUE_ID='$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json) >> $GITHUB_ENV
         # yamllint enable rule:line-length
 
-      - name: Check if dependabot
-        id: dependabot
-        if: ${{ github.actor == 'dependabot[bot]' }}
-        uses: actions/github-script@0.9.0
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            console.log("Dependabot PR!");
-
       - name: Check for linked issue
         id: linked
         if: |
@@ -101,8 +92,8 @@ jobs:
       - name: Check for allowed linked issue exclusion
         id: exclude-linked
         if: |
-          steps.dependabot.outcome == 'success' || env.LINKED_ISSUE_ID == '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
+          ((${{ github.actor == 'dependabot[bot]' }}) || (env.LINKED_ISSUE_ID == '' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true))
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -259,7 +250,7 @@ jobs:
       - name: Add no-issue PR to the project
         id: pr-to-project
         if: |
-          ${{ github.actor == 'dependabot[bot]' }} || 
+          ((${{ github.actor == 'dependabot[bot]' }}) || 
           (steps.issue-to-project.outcome == 'skipped' && 
           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true)
         # yamllint disable rule:line-length
