@@ -46,6 +46,7 @@ jobs:
       issue_id: ${{ steps.linked-issue.outputs.linked-issue-id }}
       issue_state: ${{ steps.linked-issue.outputs.linked-issue-state }}
       reviews-required: ${{ steps.linked-issue.outputs.num-reviews-required }}
+      is-bot-pr: ${{ steps.linked-issue.outputs.check-bot-pr }}
     steps:
       - name: Get linked issue id and state
         id: linked-issue
@@ -77,14 +78,15 @@ jobs:
           echo 'LINKED_ISSUE_ID='$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json) >> $GITHUB_ENV
         # yamllint enable rule:line-length
 
-      - name: Check if dependabot
-        id: dependabot
+      - name: Check if bot PR
+        id: bot-pr
         if: ${{ github.actor == 'dependabot[bot]' }}
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log("Dependabot PR!");
+            console.log("Bot created PR!");
+            echo "::set-output name=check-bot-pr::true"
 
       - name: Check for linked issue
         id: linked
@@ -101,13 +103,13 @@ jobs:
       - name: Check for allowed linked issue exclusion
         id: exclude-linked
         if: |
-          steps.dependabot.outcome == 'success' || env.LINKED_ISSUE_ID == '' && 
+          steps.bot-pr.outcome == 'success' || env.LINKED_ISSUE_ID == '' && 
           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log("Exclusion label added, or a dependabot no linked issue required!");
+            console.log("Exclusion label added, or a bot-PR no linked issue required!");
 
 
       - name: Check for linked issue exclusion error
@@ -147,6 +149,7 @@ jobs:
       LINKED_ISSUE_STATE: ${{needs.linked-issue.outputs.issue_state}}
       LINKED_ISSUE_ID: ${{needs.linked-issue.outputs.issue_id}}
       REVIEWS_REQUIRED: ${{needs.linked-issue.outputs.reviews-required}}
+      BOT_PR: ${{needs.linked-issue.outputs.is-bot-pr}}
     steps:
       - name: Get project data
         id: project-data
@@ -259,9 +262,8 @@ jobs:
       - name: Add no-issue PR to the project
         id: pr-to-project
         if: |
-          ${{ github.actor == 'dependabot[bot]' }} || 
-          (steps.issue-to-project.outcome == 'skipped' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true)
+          env.BOT_PR == true || steps.issue-to-project.outcome == 'skipped' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
         # yamllint disable rule:line-length
         run: |
           pr_item_id="$( gh api graphql -f query='
