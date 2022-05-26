@@ -17,7 +17,7 @@ this is some note text
 this is some warning text
 ::
 
-```
+```bash
 code block
 ```
 
