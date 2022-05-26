@@ -9,6 +9,14 @@ Done as GraphQL queries to be fast
 this is some info text
 ::
 
+::note
+this is some note text
+::
+
+::warning
+this is some warning text
+::
+
 ```
 code block
 ```
