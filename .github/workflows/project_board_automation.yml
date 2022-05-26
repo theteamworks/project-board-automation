@@ -375,7 +375,7 @@ jobs:
         id: linked-issue-approved
         if: |
           steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped' 
-          && env.LATEST_REVIEW_STATE == '"MERGED"'
+          && env.LATEST_REVIEW_STATE == '"APPROVED"'
         run: |
           echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
@@ -385,7 +385,7 @@ jobs:
         id: pr-nochangelog-approved 
         if: |
           steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped'
-          && env.LATEST_REVIEW_STATE == '"MERGED"'
+          && env.LATEST_REVIEW_STATE == '"APPROVED"'
         run: |
           echo 'ITEM_ID='$PR_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
@@ -398,7 +398,7 @@ jobs:
         id: merged
         if: |
           (steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped')
-          && (env.LATEST_REVIEW_STATE == '"APPROVED"') && env.IS_PR_DRAFT == 'false'
+          && (env.LATEST_REVIEW_STATE == '"MERGED"') && env.IS_PR_DRAFT == 'false'
           && (env.NUM_REVIEWS >= env.REVIEWS_REQUIRED)
         run: |
           echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
