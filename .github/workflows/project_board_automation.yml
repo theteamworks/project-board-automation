@@ -15,6 +15,10 @@ name: 'Project board automation'
 ## Config
 #######
 
+# allow permissions to be up-scoped
+permissions:
+  pull_requests: write
+
 # Set the team/project specific varaibles
 env:
   ORGANIZATION: theteamworks
