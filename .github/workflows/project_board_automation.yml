@@ -93,9 +93,9 @@ jobs:
       - name: Check for allowed linked issue exclusion
         id: exclude-linked
         if: |
-          ${{ github.actor == 'dependabot[bot]' }} || 
+          (${{ github.actor == 'dependabot[bot]' }} || 
           (env.LINKED_ISSUE_ID == '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true)
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true))
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -121,8 +121,8 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log("Remove exclusion label, update the changelog: linked issue found!");
-            core.setFailed("Remove exclusion label, update the changelog: linked issue found!");
+            console.log("Remove exclusion label, linked issue found!");
+            core.setFailed("Remove exclusion label, linked issue found!");
 
 
   #######
