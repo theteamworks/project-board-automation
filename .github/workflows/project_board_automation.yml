@@ -4,7 +4,7 @@
 name: 'Project board automation'
 
 "on":
-  pull_request:
+  pull_request_target:
     branches: [main]
     types: [edited, synchronize, opened, reopened, labeled, unlabeled, ready_for_review, review_requested, converted_to_draft]
   pull_request_review:
@@ -14,10 +14,6 @@ name: 'Project board automation'
 #######
 ## Config
 #######
-
-# allow permissions to be up-scoped
-permissions:
-  pull_requests: write
 
 # Set the team/project specific varaibles
 env:
