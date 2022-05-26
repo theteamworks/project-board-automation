@@ -101,13 +101,13 @@ jobs:
       - name: Check for allowed linked issue exclusion
         id: exclude-linked
         if: |
-          ((${{ github.actor == 'dependabot[bot]' }}) || (env.LINKED_ISSUE_ID == '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true))
+          steps.dependabot.outcome == 'success' || env.LINKED_ISSUE_ID == '' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log("Exclusion label added, or a dependabot: no linked issue required!");
+            console.log("Exclusion label added, or a dependabot no linked issue required!");
 
 
       - name: Check for linked issue exclusion error
