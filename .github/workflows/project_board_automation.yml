@@ -321,7 +321,8 @@ jobs:
         id: linked-issue-review-required
         if: |
           steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped' 
-          && env.LATEST_REVIEW_STATE == '' && env.IS_PR_DRAFT == 'false'
+          && (env.LATEST_REVIEW_STATE == ''|| contains(github.event.*.name, 'ready_for_review') == true) 
+          && env.IS_PR_DRAFT == 'false'
         run: |
           echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
@@ -331,7 +332,8 @@ jobs:
         id: pr-nochangelog-review-required
         if: |
           steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped' 
-          && env.LATEST_REVIEW_STATE == '' && env.IS_PR_DRAFT == 'false'
+          && (env.LATEST_REVIEW_STATE == '' || contains(github.event.*.name, 'ready_for_review') == true) 
+          && env.IS_PR_DRAFT == 'false'
         run: |
           echo 'ITEM_ID='$PR_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
@@ -399,7 +401,7 @@ jobs:
         run: |
           echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.MERGED_COLUMN }} >> $GITHUB_ENV
-          
+
       - name: Move no-changelog PR to approved
         id: pr-nochangelog-merged 
         if: |
