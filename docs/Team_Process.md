@@ -20,4 +20,4 @@ Follow:
 1. Board is updated automatically
 1. Move to `Done` after we deploy (don't let this column get too big).
 
-Bingo! testing a change.
+Bingo! Testing a change.
