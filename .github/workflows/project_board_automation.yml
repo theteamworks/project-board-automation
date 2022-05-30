@@ -199,7 +199,7 @@ jobs:
                   author{
                     login
                   }
-                  reviews(last: 1) {
+                  reviews(first: 1) {
                     nodes {
                       state
                     }
@@ -326,10 +326,10 @@ jobs:
         id: review-required
         if: |
           env.IS_PR_DRAFT != 'true' && 
-          ((contains(github.event.pull_request.name, 'ready_for_review') == true 
-          || contains(github.event.pull_request.name, 'review_requested') == true 
-          || contains(github.event.pull_request.name, 'opened') == true 
-          || contains(github.event.pull_request.name, 'reopened') == true) 
+          ((contains(github.event.*.name, 'ready_for_review') == true 
+          || contains(github.event.*.name, 'review_requested') == true 
+          || contains(github.event.*.name, 'opened') == true 
+          || contains(github.event.*.name, 'reopened') == true) 
           || (env.LATEST_REVIEW_STATE == '"DISMISSED"' && env.REVIEW_DECISION == '"REVIEW_REQUIRED"'))
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
