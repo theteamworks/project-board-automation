@@ -330,7 +330,7 @@ jobs:
       - name: Move item to review required column
         id: linked-issue-review-required
         if: |
-          (env.REVIEW_DECISION != 'APPROVED' && (contains(github.event.pull_request.name, 'ready_for_review') == true 
+          env.REVIEW_DECISION != 'APPROVED' && (contains(github.event.pull_request.name, 'ready_for_review') == true 
           || contains(github.event.pull_request.name, 'review_requested' == true)) && env.IS_PR_DRAFT != 'true'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
