@@ -330,7 +330,7 @@ jobs:
           || contains(github.event.*.name, 'review_requested') == true 
           || contains(github.event.*.name, 'opened') == true 
           || contains(github.event.*.name, 'reopened') == true) 
-          || (env.LATEST_REVIEW_STATE == '"DISMISSED"' && env.REVIEW_DECISION == '"REVIEW_REQUIRED"'))
+          || env.LATEST_REVIEW_STATE == '"DISMISSED"')
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
