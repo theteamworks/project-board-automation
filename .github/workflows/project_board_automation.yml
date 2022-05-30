@@ -199,14 +199,9 @@ jobs:
                   author{
                     login
                   }
-                  reviews(last: 100 states: APPROVED) {
-                    totalCount
-                  }
-                  latestReviews(first: 1) {
-                    edges {
-                      node {
-                        state
-                      }
+                  reviews(last: 1) {
+                    nodes {
+                      state
                     }
                   }
                 }
@@ -214,7 +209,7 @@ jobs:
             }'  -f pr_url=$PR_URL > data.json
           echo 'REVIEW_DECISION='$(jq '.data.resource. | .node | .reviewDecision' data.json) >> $GITHUB_ENV
           echo 'NUM_REVIEWS='$(jq '.data.resource.reviews | .totalCount' data.json) >> $GITHUB_ENV
-          echo 'LATEST_REVIEW_STATE='$(jq '.data.resource.latestReviews.edges[] | .node | .state' data.json) >> $GITHUB_ENV
+          echo 'LATEST_REVIEW_STATE='$(jq '.data.resource.review.nodes | .state' data.json) >> $GITHUB_ENV
           echo 'IS_PR_DRAFT='$(jq '.data.resource | .isDraft' data.json) >> $GITHUB_ENV
           echo 'PR_STATE='$(jq '.data.resource | .state' data.json) >> $GITHUB_ENV
           echo 'PR_ID='$(jq '.data.resource | .id' data.json) >> $GITHUB_ENV
@@ -302,7 +297,7 @@ jobs:
 
       ## TODO: remove when confident this works
       - name: TESTING
-        id: exclude-linked-error
+        id: testing
         if: steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'success'
         uses: actions/github-script@0.9.0
         with:
@@ -316,8 +311,8 @@ jobs:
       ## Draft PRs
       #######
       - name: Move draft to in progress column
-        id: draft-pr-nochangelog
-        if: env.IS_PR_DRAFT == 'true'
+        id: draft-pr
+        if: env.IS_PR_DRAFT == 'true' || contains(github.event.pull_request.name, 'converted_to_draft') == true
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_ITERATION='$CURRENT_ITERATION >> $GITHUB_ENV
@@ -328,10 +323,13 @@ jobs:
       ## Review Required
       #######
       - name: Move item to review required column
-        id: linked-issue-review-required
+        id: review-required
         if: |
-          env.REVIEW_DECISION != 'APPROVED' && (contains(github.event.pull_request.name, 'ready_for_review') == true 
-          || contains(github.event.pull_request.name, 'review_requested' == true)) && env.IS_PR_DRAFT != 'true'
+          env.IS_PR_DRAFT != 'true' && 
+          (contains(github.event.pull_request.name, 'ready_for_review') == true 
+          || contains(github.event.pull_request.name, 'review_requested') == true 
+          || contains(github.event.pull_request.name, 'opened') == true 
+          || contains(github.event.pull_request.name, 'reopened') == true) 
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
@@ -341,8 +339,8 @@ jobs:
       ## In Review
       #######
       - name: Move item to changes requested column 
-        id: linked-issue-changes-requested
-        if: env.LATEST_REVIEW_STATE == '"IN_REVIEW"' || env.LATEST_REVIEW_STATE == '"COMMENTED"'
+        id: changes-requested
+        if: env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.IN_REVIEW_COLUMN }} >> $GITHUB_ENV
@@ -352,8 +350,8 @@ jobs:
       ## Approved
       #######
       - name: Move item to approved column
-        id: linked-issue-approved
-        if: env.REVIEW_DECISION == '"APPROVED"'
+        id: approved
+        if: steps.review-required.outcome == 'skipped' && env.REVIEW_DECISION == '"APPROVED"'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
@@ -375,7 +373,7 @@ jobs:
       #######
       - name: Abort update as review dismissed or pending 
         id: skip-update
-        if: github.event.pull_request_review && env.LATEST_REVIEW_STATE == '"COMMENTED"' && env.IS_PR_DRAFT != 'true'
+        if: github.event.pull_request_review && env.LATEST_REVIEW_STATE == '"COMMENTED"'
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
