@@ -34,21 +34,14 @@ env:
   ITERATION_FIELD_NAME: Iteration   # See project settings (default is `Iteration`)
 
 jobs:
-
   #######
-  ## Linked Issues
+  ## Linked Issues & Project Board Automation
   #######
-
   # Checks linked issues or correct use of the exlusion label
-  linked-issue:
-    name: Verfiy linked issue status
+  project-board-automation:
+    name: 'Linked Issues & Project Board Automation'
     runs-on: ubuntu-latest
     permissions: write-all
-    outputs:
-      issue_id: ${{ steps.linked-issue.outputs.linked-issue-id }}
-      issue_state: ${{ steps.linked-issue.outputs.linked-issue-state }}
-      reviews-required: ${{ steps.linked-issue.outputs.num-reviews-required }}
-      is-bot-pr: ${{ steps.linked-issue.outputs.check-bot-pr }}
     steps:
       - name: Get linked issue id and state
         id: linked-issue
@@ -74,9 +67,8 @@ jobs:
                 }
               }
             }'  -f pr_url=$PR_URL > data.json
-          echo "::set-output name=num-reviews-required::$(jq '.data.resource.baseRepository.branchProtectionRules.nodes[] | .requiredApprovingReviewCount' data.json)"
-          echo "::set-output name=linked-issue-id::$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json)"
-          echo "::set-output name=linked-issue-state::$(jq '.data.resource.closingIssuesReferences.nodes[] | .state' data.json)"
+          echo 'REVIEWS_REQUIRED='$(jq '.data.resource.baseRepository.branchProtectionRules.nodes[] | .requiredApprovingReviewCount' data.json) >> $GITHUB_ENV
+          echo 'LINKED_ISSUE_STATE='$(jq '.data.resource.closingIssuesReferences.nodes[] | .state' data.json) >> $GITHUB_ENV
           echo 'LINKED_ISSUE_ID='$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json) >> $GITHUB_ENV
         # yamllint enable rule:line-length
 
@@ -88,7 +80,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             console.log("Bot created PR!");
-            echo "::set-output name=check-bot-pr::true"
+            echo 'BOT_PR=true' >> $GITHUB_ENV
 
       - name: Check for linked issue
         id: linked
@@ -136,23 +128,7 @@ jobs:
             core.setFailed("Remove exclusion label, linked issue found!");
 
 
-  #######
-  ## Project Board Automation
-  #######
-
-  # Gets Issue, PR and Project data in order move the item on the board 
-  project-board:
-    name: Update the project board
-    needs: linked-issue
-    runs-on: ubuntu-latest
-    # TODO check these permissions
-    permissions: write-all
-    env:
-      LINKED_ISSUE_STATE: ${{needs.linked-issue.outputs.issue_state}}
-      LINKED_ISSUE_ID: ${{needs.linked-issue.outputs.issue_id}}
-      REVIEWS_REQUIRED: ${{needs.linked-issue.outputs.reviews-required}}
-      BOT_PR: ${{needs.linked-issue.outputs.is-bot-pr}}
-    steps:
+      # Gets Issue, PR and Project data in order move the item on the board 
       - name: Get project data
         id: project-data
         # yamllint disable rule:line-length
