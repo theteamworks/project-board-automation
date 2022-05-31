@@ -75,7 +75,7 @@ jobs:
       - name: Check if bot PR
         id: bot-pr
         if: ${{ github.actor == 'dependabot[bot]' }}
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -87,7 +87,7 @@ jobs:
         if: |
           env.LINKED_ISSUE_ID != '' && 
           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -99,7 +99,7 @@ jobs:
         if: |
           steps.bot-pr.outcome == 'success' || env.LINKED_ISSUE_ID == '' && 
           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -109,7 +109,7 @@ jobs:
       - name: Check for linked issue exclusion error
         id: exclude-linked-error
         if: steps.linked.outcome == 'skipped' && steps.exclude-linked.outcome == 'skipped'
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -120,7 +120,7 @@ jobs:
       - name: Check for linked issue with no-issue label
         id: linked-and-nochangelog
         if: steps.linked.outcome == 'success' && steps.exclude-linked.outcome == 'success'
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -275,7 +275,7 @@ jobs:
       - name: TESTING
         id: testing
         if: steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'success'
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -346,7 +346,7 @@ jobs:
       - name: Abort update as review dismissed or pending 
         id: skip-update
         if: github.event.pull_request_review && env.LATEST_REVIEW_STATE == '"COMMENTED"'
-        uses: actions/github-script@0.9.0
+        uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
