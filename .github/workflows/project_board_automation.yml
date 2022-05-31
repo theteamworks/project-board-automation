@@ -347,7 +347,7 @@ jobs:
       #######
       - name: Move item to approved column
         id: approved
-        if: steps.review-required.outcome == 'skipped' && env.REVIEW_DECISION == '"APPROVED"'
+        if: env.REVIEW_DECISION == '"APPROVED"'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
