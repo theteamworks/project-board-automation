@@ -178,7 +178,7 @@ jobs:
                   author{
                     login
                   }
-                  reviews(first: 1) {
+                  reviews(last: 1) {
                     nodes {
                       state
                     }
@@ -188,7 +188,7 @@ jobs:
             }'  -f pr_url=$PR_URL > data.json
           echo 'REVIEW_DECISION='$(jq '.data.resource. | .node | .reviewDecision' data.json) >> $GITHUB_ENV
           echo 'NUM_REVIEWS='$(jq '.data.resource.reviews | .totalCount' data.json) >> $GITHUB_ENV
-          echo 'LATEST_REVIEW_STATE='$(jq '.data.resource.review.nodes | .state' data.json) >> $GITHUB_ENV
+          echo 'LATEST_REVIEW_STATE='$(jq '.data.resource.reviews.nodes | .state' data.json) >> $GITHUB_ENV
           echo 'IS_PR_DRAFT='$(jq '.data.resource | .isDraft' data.json) >> $GITHUB_ENV
           echo 'PR_STATE='$(jq '.data.resource | .state' data.json) >> $GITHUB_ENV
           echo 'PR_ID='$(jq '.data.resource | .id' data.json) >> $GITHUB_ENV
