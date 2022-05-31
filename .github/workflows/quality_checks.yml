@@ -47,6 +47,7 @@ jobs:
         task_name: Markdown
 
   conventional-commits:
+    needs: [yamllint, markdownlint, spellcheck]
     name: Verify conventional commits
     runs-on: ubuntu-latest
     steps:
