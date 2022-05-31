@@ -306,6 +306,7 @@ jobs:
             console.log("ERROR: added linked issue and pr to project!");
             core.setFailed("Added linked issue and pr to project - this should not happen!");
 
+      - run: env
 
       #######
       ## Draft PRs
@@ -325,7 +326,7 @@ jobs:
       - name: Move item to review required column
         id: review-required
         if: |
-          (${{ github.event.pull_request.draft != 'true' }} || env.IS_PR_DRAFT != 'true') && 
+          ${{ env.IS_PR_DRAFT != 'true' }} && 
           (${{ github.event_name == 'pull_request' && github.event.action == 'ready_for_review' }} || 
           ${{ github.event_name == 'pull_request' && github.event.action == 'review_requested' }} || 
           ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }} || 
