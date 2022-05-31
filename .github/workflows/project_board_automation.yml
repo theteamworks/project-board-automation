@@ -325,7 +325,7 @@ jobs:
       - name: Move item to review required column
         id: review-required
         if: |
-          steps.draft-pr.outcome == 'skipped' && 
+          steps.draft-pr.outcome != 'success' && 
           (${{ github.event_name == 'pull_request' && github.event.action == 'ready_for_review' }} || 
           ${{ github.event_name == 'pull_request' && github.event.action == 'review_requested' }} || 
           ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }} || 
