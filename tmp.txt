@@ -28,20 +28,27 @@ env:
   EXCLUDE_LABEL: 'no-issue'
   IN_PROGRESS_COLUMN_NAME: '"IN_PROGRESS"'
   REVIEW_REQUIRED_COLUMN_NAME: '"REVIEW_REQUIRED"'
-  IN_REVIEW_COLUMN_NAME: '"IN_REVIEW"'
+  CHANGES_REQUESTED_COLUMN_NAME: '"CHANGES_REQUESTED"'
   APPROVED_COLUMN_NAME: '"APPROVED"'
   MERGED_COLUMN_NAME: '"MERGED"'
   ITERATION_FIELD_NAME: Iteration   # See project settings (default is `Iteration`)
 
 jobs:
+
   #######
-  ## Linked Issues & Project Board Automation
+  ## Linked Issues
   #######
+
   # Checks linked issues or correct use of the exlusion label
-  project-board-automation:
-    name: 'Linked Issues & Project Board Automation'
+  linked-issue:
+    name: Verfiy linked issue status
     runs-on: ubuntu-latest
     permissions: write-all
+    outputs:
+      issue_id: ${{ steps.linked-issue.outputs.linked-issue-id }}
+      issue_state: ${{ steps.linked-issue.outputs.linked-issue-state }}
+      reviews-required: ${{ steps.linked-issue.outputs.num-reviews-required }}
+      is-bot-pr: ${{ steps.linked-issue.outputs.check-bot-pr }}
     steps:
       - name: Get linked issue id and state
         id: linked-issue
@@ -67,8 +74,9 @@ jobs:
                 }
               }
             }'  -f pr_url=$PR_URL > data.json
-          echo 'REVIEWS_REQUIRED='$(jq '.data.resource.baseRepository.branchProtectionRules.nodes[] | .requiredApprovingReviewCount' data.json) >> $GITHUB_ENV
-          echo 'LINKED_ISSUE_STATE='$(jq '.data.resource.closingIssuesReferences.nodes[] | .state' data.json) >> $GITHUB_ENV
+          echo "::set-output name=num-reviews-required::$(jq '.data.resource.baseRepository.branchProtectionRules.nodes[] | .requiredApprovingReviewCount' data.json)"
+          echo "::set-output name=linked-issue-id::$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json)"
+          echo "::set-output name=linked-issue-state::$(jq '.data.resource.closingIssuesReferences.nodes[] | .state' data.json)"
           echo 'LINKED_ISSUE_ID='$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json) >> $GITHUB_ENV
         # yamllint enable rule:line-length
 
@@ -80,7 +88,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             console.log("Bot created PR!");
-            echo 'BOT_PR=true' >> $GITHUB_ENV
+            echo "::set-output name=check-bot-pr::true"
 
       - name: Check for linked issue
         id: linked
@@ -128,7 +136,23 @@ jobs:
             core.setFailed("Remove exclusion label, linked issue found!");
 
 
-      # Gets Issue, PR and Project data in order move the item on the board 
+  #######
+  ## Project Board Automation
+  #######
+
+  # Gets Issue, PR and Project data in order move the item on the board 
+  project-board:
+    name: Update the project board
+    needs: linked-issue
+    runs-on: ubuntu-latest
+    # TODO check these permissions
+    permissions: write-all
+    env:
+      LINKED_ISSUE_STATE: ${{needs.linked-issue.outputs.issue_state}}
+      LINKED_ISSUE_ID: ${{needs.linked-issue.outputs.issue_id}}
+      REVIEWS_REQUIRED: ${{needs.linked-issue.outputs.reviews-required}}
+      BOT_PR: ${{needs.linked-issue.outputs.is-bot-pr}}
+    steps:
       - name: Get project data
         id: project-data
         # yamllint disable rule:line-length
@@ -152,7 +176,7 @@ jobs:
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") | .id' data.json) >> $GITHUB_ENV
           echo 'IN_PROGRESS_COLUMN='$(jq --arg in_progress ${{ env.IN_PROGRESS_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$in_progress) |.id' data.json) >> $GITHUB_ENV
           echo 'REVIEW_REQUIRED_COLUMN='$(jq --arg review_required ${{ env.REVIEW_REQUIRED_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$review_required) |.id' data.json) >> $GITHUB_ENV
-          echo 'IN_REVIEW_COLUMN='$(jq --arg in_review ${{ env.IN_REVIEW_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$in_review) |.id' data.json) >> $GITHUB_ENV
+          echo 'CHANGES_REQUESTED_COLUMN='$(jq --arg changes_requested ${{ env.CHANGES_REQUESTED_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$changes_requested) |.id' data.json) >> $GITHUB_ENV
           echo 'APPROVED_COLUMN='$(jq --arg approved ${{ env.APPROVED_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$approved) |.id' data.json) >> $GITHUB_ENV
           echo 'MERGED_COLUMN='$(jq --arg merged ${{ env.MERGED_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$merged) |.id' data.json) >> $GITHUB_ENV
           echo 'ITERATION_FIELD_ID='$(jq --arg iteration_field_name $ITERATION_FIELD_NAME '.data.organization.projectNext.fields.nodes[] | select(.name==$iteration_field_name) | .id' data.json) >> $GITHUB_ENV
@@ -168,24 +192,27 @@ jobs:
             query($pr_url: URI!) {
               resource(url: $pr_url) {
                 ... on PullRequest {
-                  reviewDecision
                   id
                   isDraft
                   state
                   author{
                     login
                   }
-                  reviews(first: 1) {
-                    nodes {
-                      state
+                  reviews(last: 100 states: APPROVED) {
+                    totalCount
+                  }
+                  latestReviews(last: 1) {
+                    edges {
+                      node {
+                        state
+                      }
                     }
                   }
                 }
               }
             }'  -f pr_url=$PR_URL > data.json
-          echo 'REVIEW_DECISION='$(jq '.data.resource. | .node | .reviewDecision' data.json) >> $GITHUB_ENV
           echo 'NUM_REVIEWS='$(jq '.data.resource.reviews | .totalCount' data.json) >> $GITHUB_ENV
-          echo 'LATEST_REVIEW_STATE='$(jq '.data.resource.review.nodes | .state' data.json) >> $GITHUB_ENV
+          echo 'LATEST_REVIEW_STATE='$(jq '.data.resource.latestReviews.edges[] | .node | .state' data.json) >> $GITHUB_ENV
           echo 'IS_PR_DRAFT='$(jq '.data.resource | .isDraft' data.json) >> $GITHUB_ENV
           echo 'PR_STATE='$(jq '.data.resource | .state' data.json) >> $GITHUB_ENV
           echo 'PR_ID='$(jq '.data.resource | .id' data.json) >> $GITHUB_ENV
@@ -231,7 +258,7 @@ jobs:
                 }
               }
             }' -f project=$PROJECT_ID -f issue=$LINKED_ISSUE_ID --jq '.data.addProjectNextItem.projectNextItem.id')"
-          echo 'BOARD_ITEM_ID='$issue_item_id >> $GITHUB_ENV
+          echo 'ISSUE_ITEM_ID='$issue_item_id >> $GITHUB_ENV
         # yamllint enable rule:line-length
 
       - name: Add no-issue PR to the project
@@ -249,7 +276,7 @@ jobs:
                 }
               }
             }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectNextItem.projectNextItem.id')"
-          echo 'BOARD_ITEM_ID='$pr_item_id >> $GITHUB_ENV
+          echo 'PR_ITEM_ID='$pr_item_id >> $GITHUB_ENV
         # yamllint enable rule:line-length
 
 
@@ -271,72 +298,129 @@ jobs:
               -f issueId=${{ env.ISSUE }}
 
 
-      ## TODO: remove when confident this works
-      - name: TESTING
-        id: testing
-        if: steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'success'
-        uses: actions/github-script@0.9.0
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            console.log("ERROR: added linked issue and pr to project!");
-            core.setFailed("Added linked issue and pr to project - this should not happen!");
-
-      - run: env
-
       #######
       ## Draft PRs
       #######
-      - name: Move draft to in progress column
-        id: draft-pr
-        if: github.event.pull_request.draft == 'true' || env.IS_PR_DRAFT == 'true'
+      - name: Move draft no-issue PR to in progress column
+        id: draft-pr-nochangelog
+        if: steps.pr-to-project.outcome == 'success' && env.IS_PR_DRAFT == 'true'
+        env:
+          ITEM_ID: ${{  env.PR_ITEM_ID }}
+          CURRENT_STATUS: ${{ env.IN_PROGRESS_COLUMN }}
         run: |
-          echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
+          echo 'ITEM_ID='$ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_ITERATION='$CURRENT_ITERATION >> $GITHUB_ENV
-          echo 'CURRENT_STATUS='${{ env.IN_PROGRESS_COLUMN }} >> $GITHUB_ENV
+          echo 'CURRENT_STATUS='$CURRENT_STATUS >> $GITHUB_ENV
+
+
+      - name: Move linked-issue (draft PR) to in progress column
+        id: draft-pr-issue
+        if: steps.issue-to-project.outcome == 'success' && env.IS_PR_DRAFT == 'true'
+        env:
+          ITEM_ID: ${{ env.ISSUE_ITEM_ID }}
+          CURRENT_STATUS: ${{ env.IN_PROGRESS_COLUMN }}
+        run: |
+          echo 'ITEM_ID='${{ env.ISSUE_ITEM_ID }} >> $GITHUB_ENV
+          echo 'CURRENT_ITERATION='$CURRENT_ITERATION >> $GITHUB_ENV
+          echo 'CURRENT_STATUS='$CURRENT_STATUS >> $GITHUB_ENV
 
 
       #######
       ## Review Required
       #######
-      - name: Move item to review required column
-        id: review-required
-        if: steps.draft-pr.outcome == 'skipped'
+      - name: Move linked-issue to review required column
+        id: linked-issue-review-required
+        if: |
+          steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped' 
+          && (env.LATEST_REVIEW_STATE == ''|| contains(github.event.*.name, 'ready_for_review') == true) 
+          && env.IS_PR_DRAFT == 'false'
         run: |
-          echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
+          echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
+          echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
+
+
+      - name: Move no-issue PR to review required column
+        id: pr-nochangelog-review-required
+        if: |
+          steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped' 
+          && (env.LATEST_REVIEW_STATE == '' || contains(github.event.*.name, 'ready_for_review') == true) 
+          && env.IS_PR_DRAFT == 'false'
+        run: |
+          echo 'ITEM_ID='$PR_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
 
 
       #######
-      ## In Review
+      ## Changes Requested
       #######
-      - name: Move item to changes requested column 
-        id: changes-requested
-        if: env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"'
+      - name: Move linked-issue to changes requested column 
+        id: linked-issue-changes-requested
+        if: |
+          steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped' 
+          && (env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"' 
+          || (env.LATEST_REVIEW_STATE == '"APPROVED"' && env.NUM_REVIEWS < env.REVIEWS_REQUIRED)) 
+          && env.IS_PR_DRAFT == 'false'
         run: |
-          echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
-          echo 'CURRENT_STATUS='${{ env.IN_REVIEW_COLUMN }} >> $GITHUB_ENV
+          echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
+          echo 'CURRENT_STATUS='${{ env.CHANGES_REQUESTED_COLUMN }} >> $GITHUB_ENV
+
+
+      - name: Move no-issue PR to changes requested column
+        id: pr-nochangelog-changes-requested 
+        if: |
+          steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped' 
+          && (env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"' 
+          || (env.LATEST_REVIEW_STATE == '"APPROVED"' && env.NUM_REVIEWS < env.REVIEWS_REQUIRED)) 
+          && env.IS_PR_DRAFT == 'false'
+        run: |
+          echo 'ITEM_ID='$PR_ITEM_ID >> $GITHUB_ENV
+          echo 'CURRENT_STATUS='${{ env.CHANGES_REQUESTED_COLUMN }} >> $GITHUB_ENV
 
 
       #######
       ## Approved
       #######
-      - name: Move item to approved column
-        id: approved
-        if: env.REVIEW_DECISION == '"APPROVED"'
+      - name: Move linked-issue to approved column
+        id: linked-issue-approved
+        if: |
+          steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped' 
+          && env.LATEST_REVIEW_STATE == '"APPROVED"'
         run: |
-          echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
+          echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
+          echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
+
+
+      - name: Move no-issue PR to approved column
+        id: pr-nochangelog-approved 
+        if: |
+          steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped'
+          && env.LATEST_REVIEW_STATE == '"APPROVED"'
+        run: |
+          echo 'ITEM_ID='$PR_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
 
 
       #######
-      ## Merged
+      ## MERGED
       #######
       - name: Move merged items to merged column
         id: merged
-        if: env.PR_STATE == '"MERGED"' || github.event.pull_request.merged == true
+        if: |
+          (steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'skipped')
+          && (env.LATEST_REVIEW_STATE == '"MERGED"') && env.IS_PR_DRAFT == 'false'
+          && (env.NUM_REVIEWS >= env.REVIEWS_REQUIRED)
         run: |
-          echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
+          echo 'ITEM_ID='$ISSUE_ITEM_ID >> $GITHUB_ENV
+          echo 'CURRENT_STATUS='${{ env.MERGED_COLUMN }} >> $GITHUB_ENV
+
+      - name: Move no-changelog PR to approved
+        id: pr-nochangelog-merged 
+        if: |
+          (steps.pr-to-project.outcome == 'success' && steps.issue-to-project.outcome == 'skipped')
+          && (env.LATEST_REVIEW_STATE == '"MERGED"') && env.IS_PR_DRAFT == 'false'
+          && (env.NUM_REVIEWS >= env.REVIEWS_REQUIRED)
+        run: |
+          echo 'ITEM_ID='$PR_ITEM_ID >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.MERGED_COLUMN }} >> $GITHUB_ENV
 
 
@@ -345,7 +429,9 @@ jobs:
       #######
       - name: Abort update as review dismissed or pending 
         id: skip-update
-        if: github.event.pull_request_review && env.LATEST_REVIEW_STATE == '"COMMENTED"'
+        if: |
+          (steps.issue-to-project.outcome == 'success' || steps.pr-to-project.outcome == 'success') 
+          && (env.LATEST_REVIEW_STATE == '"PENDING"' || env.LATEST_REVIEW_STATE == '"DISMISSED"') && env.IS_PR_DRAFT != 'true'
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
