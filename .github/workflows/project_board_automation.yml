@@ -326,12 +326,13 @@ jobs:
         id: review-required
         if: |
           env.IS_PR_DRAFT != 'true' && 
-          (contains(github.event.*.name, 'ready_for_review') == true 
-          || contains(github.event.*.name, 'review_requested') == true 
-          || contains(github.event.*.name, 'opened') == true 
-          || contains(github.event.*.name, 'reopened') == true 
-          || contains(github.event.*.name, 'edited') == true 
-          || env.LATEST_REVIEW_STATE == '"DISMISSED"')
+          (${{ github.event_name == 'pull_request' && github.event.action == 'ready_for_review' }} || 
+          ${{ github.event_name == 'pull_request' && github.event.action == 'review_requested' }} || 
+          ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }} || 
+          ${{ github.event_name == 'pull_request' && github.event.action == 'reopened' }} || 
+          ${{ github.event_name == 'pull_request' && github.event.action == 'edited' }} || 
+          env.LATEST_REVIEW_STATE == '"DISMISSED"')
+
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
@@ -364,7 +365,7 @@ jobs:
       #######
       - name: Move merged items to merged column
         id: merged
-        if: env.PR_STATE == '"MERGED"'
+        if: env.PR_STATE == '"MERGED"' || github.event.pull_request.merged == true
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.MERGED_COLUMN }} >> $GITHUB_ENV
