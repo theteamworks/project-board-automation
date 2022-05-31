@@ -325,13 +325,13 @@ jobs:
       - name: Move item to review required column
         id: review-required
         if: |
-          (github.event.pull_request.draft != 'true' || env.IS_PR_DRAFT != 'true') && 
+          (${{ github.event.pull_request.draft != 'true' }} || env.IS_PR_DRAFT != 'true') && 
           (${{ github.event_name == 'pull_request' && github.event.action == 'ready_for_review' }} || 
           ${{ github.event_name == 'pull_request' && github.event.action == 'review_requested' }} || 
           ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }} || 
           ${{ github.event_name == 'pull_request' && github.event.action == 'reopened' }} || 
           ${{ github.event_name == 'pull_request' && github.event.action == 'edited' }} || 
-          env.LATEST_REVIEW_STATE == '"DISMISSED"')
+          env.LATEST_REVIEW_STATE == '"DISMISSED"'))
 
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
