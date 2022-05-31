@@ -5,17 +5,17 @@ An action that will automate the movement of the cards on a GitHub projects(beta
 
 Done as GraphQL queries to be faster than building a GitHub Action.
 
-> ℹ️ Info:
-> This is some informational text.
+> ℹ️ Info: This is some informational text.
 
-> ⚠️ Warning:
-> This is a warning notification.
+> ⚠️ Warning: This is a warning notification.
 
 ```bash
+
 a b case word in
-	pattern )
-		;;
+     pattern )
+             ;;
 esac
+
 ```
 
 ## Set up the action
