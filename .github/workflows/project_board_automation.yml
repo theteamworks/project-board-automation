@@ -312,7 +312,7 @@ jobs:
       #######
       - name: Move draft to in progress column
         id: draft-pr
-        if: github.event.pull_request.draft == 'true'
+        if: github.event.pull_request.draft == 'true' || env.IS_PR_DRAFT == 'true'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_ITERATION='$CURRENT_ITERATION >> $GITHUB_ENV
