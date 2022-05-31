@@ -7,14 +7,14 @@ Done as GraphQL queries to be faster than building a GitHub Action.
 
 > ℹ️ Info: This is some informational text.
 
+Blocks need text between them.
+
 > ⚠️ Warning: This is a warning notification.
 
-```bash
+```python
 
-a b case word in
-     pattern )
-             ;;
-esac
+if __name__ == '__main__':
+	main()
 
 ```
 
