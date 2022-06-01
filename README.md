@@ -3,22 +3,19 @@
 
 An action that will automate the movement of the cards on a GitHub projects(beta) board.
 
-Done as GraphQL queries to be fast
+Done as GraphQL queries to be faster than building a GitHub Action.
 
-::info
-this is some info text
-::
+> ℹ️ Info: This is some informational text.
 
-::note
-this is some note text
-::
+Blocks need text between them.
 
-::warning
-this is some warning text
-::
+> ⚠️ Warning: This is a warning notification.
 
-```bash
-code block
+```python
+
+if __name__ == '__main__':
+    main()
+
 ```
 
 ## Set up the action

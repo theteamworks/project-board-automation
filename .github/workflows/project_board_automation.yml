@@ -9,6 +9,9 @@ name: 'Project board automation'
     types: [edited, synchronize, opened, reopened, labeled, unlabeled, ready_for_review, review_requested, converted_to_draft]
   pull_request_review:
     types: [submitted]
+  pull_request_review_comment:
+    types: [created]
+
 
 permissions:
   pull-requests: write
@@ -168,6 +171,13 @@ jobs:
             query($pr_url: URI!) {
               resource(url: $pr_url) {
                 ... on PullRequest {
+                  reviewThreads(first: 100) {
+                    edges {
+                      node {
+                        isResolved
+                      }
+                    }
+                  }
                   reviewDecision
                   id
                   isDraft
@@ -175,7 +185,7 @@ jobs:
                   author{
                     login
                   }
-                  reviews(first: 1) {
+                  reviews(last: 1) {
                     nodes {
                       state
                     }
@@ -183,9 +193,10 @@ jobs:
                 }
               }
             }'  -f pr_url=$PR_URL > data.json
-          echo 'REVIEW_DECISION='$(jq '.data.resource. | .node | .reviewDecision' data.json) >> $GITHUB_ENV
+          echo 'OPEN_REVIEW_COUNT='$(jq '[.data.resource.reviewThreads.edges[] | .node | select(.isResolved == false) | length] | add' data.json) >> $GITHUB_ENV
+          echo 'REVIEW_DECISION='$(jq '.data.resource | .reviewDecision' data.json) >> $GITHUB_ENV
           echo 'NUM_REVIEWS='$(jq '.data.resource.reviews | .totalCount' data.json) >> $GITHUB_ENV
-          echo 'LATEST_REVIEW_STATE='$(jq '.data.resource.review.nodes | .state' data.json) >> $GITHUB_ENV
+          echo 'LATEST_REVIEW_STATE='$(jq '.data.resource.reviews.nodes[] | .state' data.json) >> $GITHUB_ENV
           echo 'IS_PR_DRAFT='$(jq '.data.resource | .isDraft' data.json) >> $GITHUB_ENV
           echo 'PR_STATE='$(jq '.data.resource | .state' data.json) >> $GITHUB_ENV
           echo 'PR_ID='$(jq '.data.resource | .id' data.json) >> $GITHUB_ENV
@@ -312,7 +323,9 @@ jobs:
       #######
       - name: Move item to changes requested column 
         id: changes-requested
-        if: env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"'
+        if: |
+          env.OPEN_REVIEW_COUNT >= 1 || env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' 
+          || env.LATEST_REVIEW_STATE == '"COMMENTED"' || github.event.pull_request_review_comment
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.IN_REVIEW_COLUMN }} >> $GITHUB_ENV
