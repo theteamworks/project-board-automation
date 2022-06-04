@@ -301,9 +301,7 @@ jobs:
       #######
       - name: Move item to review required column
         id: review-required
-        if: |
-          (steps.draft-pr.outcome == 'skipped' && (env.REVIEWS_COUNT == null || github.event.action == 'ready_for_review' || 
-          (env.REVIEW_DECISION == '"REVIEW_REQUIRED"' && env.OPEN_REVIEW_COUNT == null)))
+        if: steps.draft-pr.outcome == 'skipped' && env.REVIEW_COUNT == null || github.event.action == 'ready_for_review'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
@@ -314,9 +312,7 @@ jobs:
       #######
       - name: Move item to in review column 
         id: changes-requested
-        if: |
-          env.IS_PR_DRAFT != 'true' && (env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"'
-          || env.LATEST_REVIEW_STATE == '"COMMENTED"' || github.event.pull_request_review_comment)
+        if: steps.draft-pr.outcome == 'skipped' && env.REVIEW_COUNT != null || github.event.pull_request_review_comment
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.IN_REVIEW_COLUMN }} >> $GITHUB_ENV
