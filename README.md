@@ -20,4 +20,12 @@ if __name__ == '__main__':
 
 ## Set up the action
 
+To configure the GitHub Action...
+
 ## Set up the (beta) project board
+
+To configure the GitHub board...
+
+## Set up branch protection
+
+To configure the GitHub branch protection...
