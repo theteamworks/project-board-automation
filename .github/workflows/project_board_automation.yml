@@ -298,18 +298,11 @@ jobs:
       #######
       ## Review Required critera
       #######
-      - name: Move new item to review required column
-        id: new-review-required
-        if: env.IS_PR_DRAFT != 'true' && env.REVIEWS_COUNT == null
-        run: |
-          echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
-          echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
-
       - name: Move item to review required column
         id: review-required
         if: |
           github.event.action == 'ready_for_review' || 
-          env.IS_PR_DRAFT != 'true' && env.REVIEWS_COUNT == null
+          env.IS_PR_DRAFT != 'true' && env.REVIEWS_COUNT == 'null'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
