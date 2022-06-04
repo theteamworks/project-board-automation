@@ -14,9 +14,12 @@ name: 'Project board automation'
 
 
 permissions:
-  pull-requests: write
-  issues: write
   repository-projects: write
+  contents: write
+  issues: write
+  pull-requests: write
+  repository-projects: write
+
 
 #######
 ## Config
@@ -27,7 +30,7 @@ env:
   ORGANIZATION: theteamworks
   PROJECT_NUMBER: 3
   PR_URL: ${{ github.event.pull_request.html_url }}
-  GITHUB_TOKEN: ${{ secrets.BOARD_AUTOMATION }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   EXCLUDE_LABEL: 'no-issue'
   IN_PROGRESS_COLUMN_NAME: '"IN_PROGRESS"'
   REVIEW_REQUIRED_COLUMN_NAME: '"REVIEW_REQUIRED"'
@@ -44,7 +47,6 @@ jobs:
   project-board-automation:
     name: 'Linked Issues & Project Board Automation'
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
       - name: Get linked issue id and state
         id: linked-issue
@@ -208,8 +210,6 @@ jobs:
       - name: Get PR author id
         id: pr-author
         if: steps.pr-status.outcome == 'success'
-        env:
-          AUTHOR_NAME: ${{ env.AUTHOR_NAME }}
         # yamllint disable rule:line-length
         run: |
           gh api graphql -f query='
@@ -297,7 +297,7 @@ jobs:
       - run: env
 
       #######
-      ## Draft PRs
+      ## Draft PR  critera
       #######
       - name: Move draft to in progress column
         id: draft-pr
@@ -309,7 +309,7 @@ jobs:
 
 
       #######
-      ## Review Required
+      ## Review Required critera
       #######
       - name: Move item to review required column
         id: review-required
@@ -320,7 +320,7 @@ jobs:
 
 
       #######
-      ## In Review
+      ## In Review critera
       #######
       - name: Move item to in review column 
         id: changes-requested
@@ -333,7 +333,7 @@ jobs:
 
 
       #######
-      ## Approved
+      ## Approved critera
       #######
       - name: Move item to approved column
         id: approved
@@ -344,7 +344,7 @@ jobs:
 
 
       #######
-      ## Merged
+      ## Merged critera
       #######
       - name: Move merged items to merged column
         id: merged
@@ -368,11 +368,11 @@ jobs:
 
 
       #######
-      ## Set the Project Fields
+      ## Set the Project Fields and move the item
       #######
       - run: env
 
-      - name: Set custom and status fields
+      - name: Move project board item
         if: steps.skip-update.outcome == 'skipped'
         run: |
           gh api graphql -f query='
@@ -407,6 +407,6 @@ jobs:
             }' -f project=$PROJECT_ID \
               -f item=$ITEM_ID \
               -f status_field=$STATUS_FIELD_ID \
-              -f status_value=${{ env.CURRENT_STATUS }} \
+              -f status_value=$CURRENT_STATUS \
               -f iteration_field=$ITERATION_FIELD_ID \
-              -f iteration_value=${{ env.CURRENT_ITERATION }}
+              -f iteration_value=$CURRENT_ITERATION }}
