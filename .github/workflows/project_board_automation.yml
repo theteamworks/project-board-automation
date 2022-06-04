@@ -49,7 +49,6 @@ jobs:
     steps:
       - name: Get linked issue id and state
         id: linked-issue
-        # yamllint disable rule:line-length
         run: |
           gh api graphql -f query='
             query($pr_url: URI!) {
@@ -74,7 +73,6 @@ jobs:
           echo 'REVIEWS_REQUIRED='$(jq '.data.resource.baseRepository.branchProtectionRules.nodes[] | .requiredApprovingReviewCount' data.json) >> $GITHUB_ENV
           echo 'LINKED_ISSUE_STATE='$(jq '.data.resource.closingIssuesReferences.nodes[] | .state' data.json) >> $GITHUB_ENV
           echo 'LINKED_ISSUE_ID='$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json) >> $GITHUB_ENV
-        # yamllint enable rule:line-length
 
       - name: Check if bot PR
         id: bot-pr
@@ -135,7 +133,6 @@ jobs:
       # Gets Issue, PR and Project data in order move the item on the board 
       - name: Get project data
         id: project-data
-        # yamllint disable rule:line-length
         run: |
           gh api graphql -f query='
             query($org: String!, $number: Int!) {
@@ -161,12 +158,10 @@ jobs:
           echo 'MERGED_COLUMN='$(jq --arg merged ${{ env.MERGED_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$merged) |.id' data.json) >> $GITHUB_ENV
           echo 'ITERATION_FIELD_ID='$(jq --arg iteration_field_name $ITERATION_FIELD_NAME '.data.organization.projectNext.fields.nodes[] | select(.name==$iteration_field_name) | .id' data.json) >> $GITHUB_ENV
           echo 'CURRENT_ITERATION='$(jq --arg iteration_field_name $ITERATION_FIELD_NAME '.data.organization.projectNext.fields.nodes[] | select(.name==$iteration_field_name) |.settings | fromjson.configuration.iterations[0] | .id' data.json) >> $GITHUB_ENV
-        # yamllint enable rule:line-length
 
 
       - name: Get PR state review status and author
         id: pr-status
-        # yamllint disable rule:line-length
         run: |
           gh api graphql -f query='
             query($pr_url: URI!) {
@@ -203,13 +198,11 @@ jobs:
           echo 'PR_STATE='$(jq '.data.resource | .state' data.json) >> $GITHUB_ENV
           echo 'PR_ID='$(jq '.data.resource | .id' data.json) >> $GITHUB_ENV
           echo 'AUTHOR_NAME='$(jq '.data.resource.author | .login' data.json) >> $GITHUB_ENV
-        # yamllint enable rule:line-length
 
 
       - name: Get PR author id
         id: pr-author
         if: steps.pr-status.outcome == 'success'
-        # yamllint disable rule:line-length
         run: |
           gh api graphql -f query='
             query($author_name: String!) {
@@ -224,7 +217,6 @@ jobs:
               }
             }'  -f author_name=$AUTHOR_NAME > data.json
           echo 'AUTHOR_ID='$(jq '.data.search.edges[] | .node | .id' data.json) >> $GITHUB_ENV
-        # yamllint enable rule:line-length
 
 
       - name: Add linked issue to the project
@@ -232,7 +224,6 @@ jobs:
         if: |
           env.LINKED_ISSUE_ID != '' && 
           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
-        # yamllint disable rule:line-length
         run: |
           issue_item_id="$( gh api graphql -f query='
             mutation($project:ID!, $issue:ID!) {
@@ -243,7 +234,6 @@ jobs:
               }
             }' -f project=$PROJECT_ID -f issue=$LINKED_ISSUE_ID --jq '.data.addProjectNextItem.projectNextItem.id')"
           echo 'BOARD_ITEM_ID='$issue_item_id >> $GITHUB_ENV
-        # yamllint enable rule:line-length
 
       - name: Add no-issue PR to the project
         id: pr-to-project
@@ -261,7 +251,6 @@ jobs:
               }
             }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectNextItem.projectNextItem.id')"
           echo 'BOARD_ITEM_ID='$pr_item_id >> $GITHUB_ENV
-        # yamllint enable rule:line-length
 
 
       - name: Reopen if linked issue closed
@@ -313,8 +302,8 @@ jobs:
       - name: Move item to review required column
         id: review-required
         if: |
-          (steps.draft-pr.outcome == 'skipped' && (env.REVIEWS_COUNT == null || 
-          (github.event.action == 'ready_for_review' && env.REVIEWS_COUNT != null)))
+          (steps.draft-pr.outcome == 'skipped' && (env.REVIEWS_COUNT == null || github.event.action == 'ready_for_review' || 
+          (env.REVIEW_DECISION == '"REVIEW_REQUIRED"' && env.OPEN_REVIEW_COUNT == null)))
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
