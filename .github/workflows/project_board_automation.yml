@@ -88,7 +88,7 @@ jobs:
         id: linked
         if: |
           env.LINKED_ISSUE_ID != '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != 'true'
         uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -100,7 +100,7 @@ jobs:
         id: exclude-linked
         if: |
           steps.bot-pr.outcome == 'success' || env.LINKED_ISSUE_ID == '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == 'true'
         uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -223,7 +223,7 @@ jobs:
         id: issue-to-project
         if: |
           env.LINKED_ISSUE_ID != '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != 'true'
         run: |
           issue_item_id="$( gh api graphql -f query='
             mutation($project:ID!, $issue:ID!) {
@@ -238,8 +238,8 @@ jobs:
       - name: Add no-issue PR to the project
         id: pr-to-project
         if: |
-          env.BOT_PR == true || steps.issue-to-project.outcome == 'skipped' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
+          env.BOT_PR == 'true' || steps.issue-to-project.outcome == 'skipped' && 
+          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == 'true'
         # yamllint disable rule:line-length
         run: |
           pr_item_id="$( gh api graphql -f query='
@@ -338,7 +338,7 @@ jobs:
       #######
       - name: Move merged items to merged column
         id: merged
-        if: env.PR_STATE == '"MERGED"' || github.event.pull_request.merged == true
+        if: env.PR_STATE == '"MERGED"' || github.event.pull_request.merged == 'true'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.MERGED_COLUMN }} >> $GITHUB_ENV
