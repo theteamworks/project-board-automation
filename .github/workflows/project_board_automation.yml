@@ -301,8 +301,9 @@ jobs:
       #######
       - name: Move item to review required column
         id: review-required
-        if: github.event.action == 'ready_for_review' || 
-        env.IS_PR_DRAFT != 'true' && env.REVIEWS_COUNT == null
+        if: |
+          github.event.action == 'ready_for_review' || 
+          env.IS_PR_DRAFT != 'true' && env.REVIEWS_COUNT == null
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
