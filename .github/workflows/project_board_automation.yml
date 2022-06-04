@@ -312,7 +312,8 @@ jobs:
       #######
       - name: Move item to review required column
         id: review-required
-        if: (steps.draft-pr.outcome == 'skipped' && (env.REVIEWS_COUNT == null || 
+        if: |
+        (steps.draft-pr.outcome == 'skipped' && (env.REVIEWS_COUNT == null || 
         (github.event.action == 'ready_for_review' && env.REVIEWS_COUNT != null)))
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
