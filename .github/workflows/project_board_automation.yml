@@ -24,7 +24,7 @@ env:
   ORGANIZATION: theteamworks
   PROJECT_NUMBER: 3
   PR_URL: ${{ github.event.pull_request.html_url }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.BOARD_AUTOMATION }}
   EXCLUDE_LABEL: 'no-issue'
   IN_PROGRESS_COLUMN_NAME: '"IN_PROGRESS"'
   REVIEW_REQUIRED_COLUMN_NAME: '"REVIEW_REQUIRED"'
