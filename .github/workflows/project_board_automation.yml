@@ -12,11 +12,13 @@ name: 'Project board automation'
   pull_request_review_comment:
     types: [created]
 
+
 permissions:
   repository-projects: write
   contents: write
   issues: write
   pull-requests: write
+
 
 #######
 ## Config
@@ -40,6 +42,7 @@ jobs:
   #######
   ## Linked Issues & Project Board Automation
   #######
+  # Checks linked issues or correct use of the exlusion label
   project-board-automation:
     name: 'Linked Issues & Project Board Automation'
     runs-on: ubuntu-latest
@@ -235,7 +238,7 @@ jobs:
       - name: Add no-issue PR to the project
         id: pr-to-project
         if: |
-          env.BOT_PR == 'true' || steps.issue-to-project.outcome == 'skipped' && 
+          env.BOT_PR == true || steps.issue-to-project.outcome == 'skipped' && 
           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
         run: |
           pr_item_id="$( gh api graphql -f query='
