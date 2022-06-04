@@ -54,14 +54,14 @@ jobs:
             query($pr_url: URI!) {
               resource(url: $pr_url) {
                 ... on PullRequest {
-                  closingIssuesReferences(first: 1) {
+                  closingIssuesReferences(last: 1) {
                     nodes {
                       id
                       state
                     }
                   }
                   baseRepository {
-                    __typename branchProtectionRules(first: 1) {
+                    __typename branchProtectionRules(last: 1) {
                       nodes {
                         requiredApprovingReviewCount
                       }
@@ -171,7 +171,7 @@ jobs:
             query($pr_url: URI!) {
               resource(url: $pr_url) {
                 ... on PullRequest {
-                  reviewThreads(first: 100) {
+                  reviewThreads(last: 100) {
                     edges {
                       node {
                         isResolved
@@ -193,6 +193,7 @@ jobs:
                 }
               }
             }'  -f pr_url=$PR_URL > data.json
+          echo 'REVIEWS_COUNT='$(jq '[.data.resource.reviewThreads.edges[] | .node | select(.isResolved != null) | length] | add' data.json) >> $GITHUB_ENV
           echo 'OPEN_REVIEW_COUNT='$(jq '[.data.resource.reviewThreads.edges[] | .node | select(.isResolved == false) | length] | add' data.json) >> $GITHUB_ENV
           echo 'REVIEW_DECISION='$(jq '.data.resource | .reviewDecision' data.json) >> $GITHUB_ENV
           echo 'NUM_REVIEWS='$(jq '.data.resource.reviews | .totalCount' data.json) >> $GITHUB_ENV
@@ -312,7 +313,7 @@ jobs:
       #######
       - name: Move item to review required column
         id: review-required
-        if: steps.draft-pr.outcome == 'skipped'
+        if: steps.draft-pr.outcome == 'skipped' && env.REVIEWS_COUNT == null
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
@@ -321,7 +322,7 @@ jobs:
       #######
       ## In Review
       #######
-      - name: Move item to changes requested column 
+      - name: Move item to in review column 
         id: changes-requested
         if: |
           env.OPEN_REVIEW_COUNT >= 1 || env.LATEST_REVIEW_STATE == '"CHANGES_REQUESTED"' 
