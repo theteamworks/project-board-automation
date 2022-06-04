@@ -12,7 +12,13 @@ name: 'Project board automation'
   pull_request_review_comment:
     types: [created]
 
-permissions: write-all
+
+permissions:
+  repository-projects: write
+  contents: write
+  issues: write
+  pull-requests: write
+  repository-projects: write
 
 
 #######
@@ -401,6 +407,6 @@ jobs:
             }' -f project=$PROJECT_ID \
               -f item=$ITEM_ID \
               -f status_field=$STATUS_FIELD_ID \
-              -f status_value=$CURRENT_STATUS \
+              -f status_value=${{ env.CURRENT_STATUS }} \
               -f iteration_field=$ITERATION_FIELD_ID \
-              -f iteration_value=$CURRENT_ITERATION }}
+              -f iteration_value=${{ env.CURRENT_ITERATION }}
