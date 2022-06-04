@@ -14,7 +14,6 @@ name: 'Project board automation'
 
 
 permissions:
-  repository-projects: write
   contents: write
   issues: write
   pull-requests: write
