@@ -313,8 +313,8 @@ jobs:
       - name: Move item to in review column 
         id: changes-requested
         if: | 
-          (steps.draft-pr.outcome == 'skipped' && env.REVIEW_COUNT != null &&  
-          (env.REVIEW_DECISION == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"'))
+          steps.draft-pr.outcome == 'skipped' && env.REVIEW_COUNT != null &&  
+          env.REVIEW_DECISION == '"CHANGES_REQUESTED"' || env.LATEST_REVIEW_STATE == '"COMMENTED"'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.IN_REVIEW_COLUMN }} >> $GITHUB_ENV
