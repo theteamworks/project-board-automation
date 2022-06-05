@@ -269,24 +269,13 @@ jobs:
             }' -f clientMutationId=${{ env.PR_AUTHOR }} \
               -f issueId=${{ env.ISSUE }}
 
-
-      ## TODO: remove when confident this works
-      - name: TESTING
-        id: testing
-        if: steps.issue-to-project.outcome == 'success' && steps.pr-to-project.outcome == 'success'
-        uses: actions/github-script@v6.1.0
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            console.log("ERROR: added linked issue and pr to project!");
-            core.setFailed("Added linked issue and pr to project - this should not happen!");
-
+      # check the env vars before 
       - run: env
 
       #######
       ## Draft PR  critera
       #######
-      - name: Move draft to in progress column
+      - name: Set item to draft to in progress column
         id: draft-pr
         if: github.event.pull_request.draft == 'true' || env.IS_PR_DRAFT == 'true'
         run: |
@@ -298,7 +287,7 @@ jobs:
       #######
       ## Review Required critera
       #######
-      - name: Move item to review required column
+      - name: Set item to review required column
         id: review-required
         if: |
           github.event.action == 'ready_for_review' || 
@@ -311,7 +300,7 @@ jobs:
       #######
       ## In Review critera
       #######
-      - name: Move item to in review column 
+      - name: Set item to in review column 
         id: changes-requested
         if: |
           steps.draft-pr.outcome == 'skipped' && env.REVIEWS_COUNT != 'null' &&  
@@ -324,7 +313,7 @@ jobs:
       #######
       ## Approved critera
       #######
-      - name: Move item to approved column
+      - name: Set item to approved column
         id: approved
         if: steps.draft-pr.outcome == 'skipped' && env.REVIEW_DECISION == '"APPROVED"'
         run: |
@@ -335,7 +324,7 @@ jobs:
       #######
       ## Merged critera
       #######
-      - name: Move merged items to merged column
+      - name: Set items to merged column
         id: merged
         if: env.PR_STATE == '"MERGED"' || github.event.pull_request.merged == true
         run: |
@@ -344,7 +333,7 @@ jobs:
 
 
       #######
-      ## Skip moving items
+      ## Skip moving items - TODO Revise this one CLOSED?
       #######
       - name: Abort update as review dismissed or pending 
         id: skip-update
@@ -357,9 +346,8 @@ jobs:
 
 
       #######
-      ## Set the Project Fields and move the item
+      ## Set the project fields and move the item
       #######
-      - run: env
 
       - name: Move project board item
         if: steps.skip-update.outcome == 'skipped'
