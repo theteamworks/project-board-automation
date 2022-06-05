@@ -20,6 +20,8 @@ jobs:
         uses: mikepenz/release-changelog-builder-action@v3
         with:
           configuration: "config/changelogconfig.json"
+          ignorePreReleases: "true"
+          fromTag: "0.0.1"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
