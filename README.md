@@ -32,6 +32,7 @@ To configure the GitHub branch protection... Testing.
 
 <details>
     <summary> Testing: Click to expand</summary>
+
     ### Heading for this
     paragraph text
     1. List item one
