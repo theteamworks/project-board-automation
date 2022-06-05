@@ -7,7 +7,7 @@ Done as GraphQL queries to be faster than building a GitHub Action.
 
 > ℹ️ Info: This is some informational text.
 
-Blocks need text between them.
+Blocks need text between them. So remember.
 
 > ⚠️ Warning: This is a warning notification.
 
