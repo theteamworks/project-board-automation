@@ -17,13 +17,17 @@
         "labels": ["tests"]
       },
       {
+        "title": "## 📑 Docs",
+        "labels": ["documentation"]
+      },
+      {
         "title": "## 🪄 Magic",
         "labels": ["mega", "magic"],
         "exhaustive": true,
       }
     ],
     "ignore_labels": [
-      "wontfix", "no-issue", "duplicate"
+      "wontfix", "no-changelog", "duplicate"
     ],
     "sort": {
       "order": "ASC",
