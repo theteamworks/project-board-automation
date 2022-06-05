@@ -23,7 +23,7 @@
       }
     ],
     "ignore_labels": [
-      "wontfix", "no-issue", "duplicate"
+      "wontfix", "no-changelog", "duplicate"
     ],
     "sort": {
       "order": "ASC",
