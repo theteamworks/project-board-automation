@@ -3,5 +3,5 @@
     "line-length": false,
     "commands-show-output": false,
     "no-bare-urls": true,
-    "MD033": { "allowed_elements": [ "ol", "li" ] },
+    "no-inline-html": false
 }
