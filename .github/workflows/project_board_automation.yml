@@ -246,7 +246,7 @@ jobs:
             }' -f clientMutationId=${{ env.PR_AUTHOR }} \
               -f issueId=${{ env.ISSUE }}
 
-      # check the env vars before 
+      # check the env vars before the update to help debugging
       - run: env
 
 #######
