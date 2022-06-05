@@ -28,4 +28,4 @@ To configure the GitHub board setting in a columns...
 
 ## Set up branch protection
 
-To configure the GitHub branch protection... testing.
+To configure the GitHub branch protection... Testing.
