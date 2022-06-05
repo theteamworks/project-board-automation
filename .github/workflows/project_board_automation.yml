@@ -296,7 +296,6 @@ jobs:
 ## Take the set item fields, update and move the item on the board
 #######
       - name: Move project board item
-        if: steps.skip-update.outcome == 'skipped'
         run: |
           gh api graphql -f query='
             mutation (
