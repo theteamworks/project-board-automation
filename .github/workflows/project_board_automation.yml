@@ -6,7 +6,7 @@ name: 'Project board automation'
 "on":
   pull_request:
     branches: [main]
-    types: [edited, synchronize, opened, reopened, labeled, unlabeled, ready_for_review, review_requested, converted_to_draft]
+    types: [edited, synchronize, opened, reopened, labeled, unlabeled, ready_for_review, review_requested, converted_to_draft, closed]
   pull_request_review:
     types: [submitted]
   pull_request_review_comment:
@@ -337,7 +337,7 @@ jobs:
       #######
       - name: Move merged items to merged column
         id: merged
-        if: env.PR_STATE == '"MERGED"' || github.event.pull_request.merged == 'true'
+        if: env.PR_STATE == '"MERGED"' || github.event.pull_request.merged == true
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.MERGED_COLUMN }} >> $GITHUB_ENV
