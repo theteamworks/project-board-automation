@@ -232,9 +232,6 @@ jobs:
       - name: 'Reopen if the linked issue closed'
         id: reopen-issue
         if: steps.issue-to-project.outcome == 'success' && env.LINKED_ISSUE_STATE == '"CLOSED"'
-        env: 
-          ISSUE: ${{ env.LINKED_ISSUE_ID }}
-          PR_AUTHOR: ${{ env.AUTHOR_ID }}
         run: |
           gh api graphql -f query='
             mutation($clientMutationId:String!, $issueId:ID!) {
@@ -243,8 +240,7 @@ jobs:
                   id
                 }
               }
-            }' -f clientMutationId=${{ env.PR_AUTHOR }} \
-              -f issueId=${{ env.ISSUE }}
+            }' -f clientMutationId=$AUTHOR_ID -f issueId=$LINKED_ISSUE_ID
 
       # check the env vars before the update to help debugging
       - run: env
@@ -291,6 +287,19 @@ jobs:
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.MERGED_COLUMN }} >> $GITHUB_ENV
+
+      - name: 'Close linked issue when PR mergd'
+        id: close-issue
+        if: steps.merged.outcome == 'success' && steps.linked.outcome == 'success'
+        run: |
+          gh api graphql -f query='
+            mutation($clientMutationId:String!, $issueId:ID!) {
+              closeIssue(input: {clientMutationId:$clientMutationId, issueId:$issueId}) {
+                issue{
+                  id
+                }
+              }
+            }' -f clientMutationId=$AUTHOR_ID -f issueId=$LINKED_ISSUE_ID
 
 #######
 ## Take the set item fields, update and move the item on the board
