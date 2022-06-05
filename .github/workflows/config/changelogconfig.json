@@ -17,6 +17,10 @@
         "labels": ["tests"]
       },
       {
+        "title": "## 📑 Docs",
+        "labels": ["documentation"]
+      },
+      {
         "title": "## 🪄 Magic",
         "labels": ["mega", "magic"],
         "exhaustive": true,
