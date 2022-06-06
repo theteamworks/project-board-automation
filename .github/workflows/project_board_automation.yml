@@ -12,11 +12,7 @@ name: 'Project board automation'
   pull_request_review_comment:
     types: [created]
 
-permissions:
-  repository-projects: write
-  contents: write
-  issues: write
-  pull-requests: write
+permissions: write-all
 
 # Configure the project specific varaibles
 env:
