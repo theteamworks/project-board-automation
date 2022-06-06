@@ -30,6 +30,7 @@ env:
   IN_REVIEW_COLUMN_NAME: '"IN_REVIEW"'
   APPROVED_COLUMN_NAME: '"APPROVED"'
   MERGED_COLUMN_NAME: '"MERGED"'
+  DONE_COLUMN_NAME: '"DONE"'
   ITERATION_FIELD_NAME: Iteration   # See project settings (default is `Iteration`)
 
 jobs:
@@ -136,6 +137,7 @@ jobs:
           echo 'IN_REVIEW_COLUMN='$(jq --arg in_review ${{ env.IN_REVIEW_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$in_review) |.id' data.json) >> $GITHUB_ENV
           echo 'APPROVED_COLUMN='$(jq --arg approved ${{ env.APPROVED_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$approved) |.id' data.json) >> $GITHUB_ENV
           echo 'MERGED_COLUMN='$(jq --arg merged ${{ env.MERGED_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$merged) |.id' data.json) >> $GITHUB_ENV
+          echo 'DONE_COLUMN='$(jq --arg merged ${{ env.DONE_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$merged) |.id' data.json) >> $GITHUB_ENV
           echo 'ITERATION_FIELD_ID='$(jq --arg iteration_field_name $ITERATION_FIELD_NAME '.data.organization.projectNext.fields.nodes[] | select(.name==$iteration_field_name) | .id' data.json) >> $GITHUB_ENV
           echo 'CURRENT_ITERATION='$(jq --arg iteration_field_name $ITERATION_FIELD_NAME '.data.organization.projectNext.fields.nodes[] | select(.name==$iteration_field_name) |.settings | fromjson.configuration.iterations[0] | .id' data.json) >> $GITHUB_ENV
 
@@ -281,7 +283,7 @@ jobs:
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
 
-      - name: 'Set work item for  merged column'
+      - name: 'Set work item for merged column'
         id: merged
         if: env.PR_STATE == '"MERGED"' || github.event.pull_request.merged == true
         run: |
@@ -300,6 +302,20 @@ jobs:
                 }
               }
             }' -f clientMutationId=$AUTHOR_ID -f issueId=$LINKED_ISSUE_ID
+
+      - name: 'Set closed PR for done column'
+        id: closed-pr
+        if: steps.exclude-linked.outcome == 'success' && github.event.pull_request.closed == true
+        run: |
+          echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
+          echo 'CURRENT_STATUS='${{ env.DONE_COLUMN }} >> $GITHUB_ENV
+
+      - name: 'Set closed PR issue to in progress column'
+        id: closed-pr-with-issue
+        if: steps.linked.outcome == 'success' && github.event.pull_request.merged == true
+        run: |
+          echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
+          echo 'CURRENT_STATUS='${{ env.IN_PROGRESS_COLUMN }} >> $GITHUB_ENV
 
 #######
 ## Take the set item fields, update and move the item on the board
