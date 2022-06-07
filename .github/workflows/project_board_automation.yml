@@ -12,8 +12,6 @@ name: 'Project board automation'
   pull_request_review_comment:
     types: [created]
 
-permissions: write-all
-
 # Configure the project specific varaibles
 env:
   ORGANIZATION: theteamworks
@@ -33,6 +31,7 @@ jobs:
   project-board-automation:
     name: 'Linked Issues & Project Board Automation'
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
 #######
 ## Gather data, reopen closed issues and ensure work item is on the board
