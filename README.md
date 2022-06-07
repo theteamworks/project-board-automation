@@ -6,7 +6,7 @@ An action that will automate the movement of the cards on a GitHub projects(beta
 Before thinking of using this check out the following info and understand the assumptions made and the context it was designed for.
 
 - The [Rationale](./docs/Rationale.md) for doing this
-- The [Process](./docs/Rationale.md) the team should be following 
+- The [Process](./docs/Rationale.md) the team should be following
 - The [Detailed Workflow](./docs/Workflow.md) of the action
 - The [GitHub Settings](GitHubSettings.md) that are required
 - The [Project Board](https://github.com/orgs/theteamworks/projects/3) will have columns as per this example (column names can be changed).
@@ -15,11 +15,11 @@ This has been done using GitHub Action `run` and GraphQL queries to be faster th
 
 ## Setting up the action
 
-This has been designed for a non-dev person to copy a file, configure a few settings and have the board automated.
+This has been designed for a non-developer person to copy a file, configure a few settings and have the board automated.
 
 ### Copy the yaml file
 
-Copy the GitHub Action [yaml file](https://github.com/theteamworks/project-board-automation/blob/main/.github/workflows/project_board_automation.yml) from this repo to get the latest version. Copy this file into your repository in the same location `.github/workflows/`.
+Copy the GitHub Action [yaml file](https://github.com/theteamworks/project-board-automation/blob/main/.github/workflows/project_board_automation.yml) from this repository to get the latest version. Copy this file into your repository in the same location `.github/workflows/`.
 
 ### Configure the action
 
@@ -43,6 +43,7 @@ env:
   ITERATION_FIELD_NAME: Iteration   # See project settings (default is `Iteration`)
 
 ```
+
 #### Exclusion label
 
 In order for the action to know that the pull request does note require the mandate of a planned issue (as per the [no issue required](./docs/Process.md###pull-requests-with-no-issue-required) process) an exclusion label needs to be defined.
