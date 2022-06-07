@@ -12,7 +12,7 @@ name: 'Project board automation'
   pull_request_review_comment:
     types: [created]
 
-# Configure the project specific varaibles
+# Configure the project specific variables
 env:
   ORGANIZATION: theteamworks
   PROJECT_NUMBER: 3
