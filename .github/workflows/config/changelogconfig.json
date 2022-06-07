@@ -6,7 +6,7 @@
       },
       {
         "title": "## 🚀 Features",
-        "labels": ["enhancement"]
+        "labels": ["enhancement", "dependencies"]
       },
       {
         "title": "## 🐛 Fixes",
@@ -22,7 +22,6 @@
       },
       {
         "title": "## 🪄 Magic",
-        "labels": ["mega", "magic"],
         "exhaustive": true,
       }
     ],
