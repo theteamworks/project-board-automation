@@ -57,7 +57,7 @@ jobs:
 
       - name: 'Check if PR raised by bot'
         id: bot-pr
-        if: ${{ github.actor == 'dependabot[bot]' ||  startsWith(github.head_ref, 'dependabot/') == true}}
+        if: ${{ github.actor == 'dependabot[bot]' || startsWith(github.head_ref, 'dependabot/') == true }}
         uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -174,7 +174,6 @@ jobs:
           echo 'PR_STATE='$(jq '.data.resource | .state' data.json) >> $GITHUB_ENV
           echo 'PR_ID='$(jq '.data.resource | .id' data.json) >> $GITHUB_ENV
           echo 'AUTHOR_NAME='$(jq '.data.resource.author | .login' data.json) >> $GITHUB_ENV
-
 
       - name: 'Get PR author id'
         id: pr-author
