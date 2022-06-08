@@ -12,7 +12,7 @@ name: 'Project board automation'
   pull_request_review_comment:
     types: [created]
 
-# Configure the project specific varaibles
+# Configure the project specific variables
 env:
   ORGANIZATION: theteamworks
   PROJECT_NUMBER: 3
@@ -57,7 +57,7 @@ jobs:
 
       - name: 'Check if PR raised by bot'
         id: bot-pr
-        if: ${{ github.actor == 'dependabot[bot]' }}
+        if: contains('refs/heads/dependabot/', github.ref)
         uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
