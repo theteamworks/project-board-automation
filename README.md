@@ -11,7 +11,7 @@ Before thinking of using this check out the following info and understand the as
 - The [GitHub Settings](GitHubSettings.md) that are required
 - The [Project Board](https://github.com/orgs/theteamworks/projects/3) will have columns as per this example (column names can be changed).
 
-This has been done using GitHub Action `run` and GraphQL queries to be faster than building a full GitHub Action. This is because this action will run often and this action runs in 5-10 seconds. 
+This has been done using GitHub Action `run` and GraphQL queries to be faster than building a full GitHub Action. This is because this action will run often and this action runs in 5-10 seconds.
 
 ## Setting up the action
 
