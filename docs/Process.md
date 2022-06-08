@@ -20,7 +20,7 @@ In this case raise a pull request and add the `exclusion` label and continue the
 
 ### Use the review process in GitHub
 
-This workflow has been set up around a flow that requires a pull request to merge into your `main` / `develop` branch. It also works with `CODEOWNERS` and any number of reviews required before being approved to merge. The GitHub repo settings can be seen [here](./GitHubSettings)
+This workflow has been set up around a flow that requires a pull request to merge into your `main` / `develop` branch. It also works with `CODEOWNERS` and any number of reviews required before being approved to merge. The GitHub repository settings can be seen [here](./GitHubSettings)
 
 ### Pick a card from `todo` and add your name(s) to it
 
