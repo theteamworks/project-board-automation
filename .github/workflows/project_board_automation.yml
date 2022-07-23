@@ -1,12 +1,12 @@
 ---
 
 
-name: 'Project board automation'
+name: 'Project Board Automation'
 
 "on":
   pull_request:
-    branches: [main]
-    types: [edited, synchronize, opened, reopened, labeled, unlabeled, ready_for_review, review_requested, converted_to_draft, closed]
+    branches: [develop, main]
+    types: [synchronize, opened, reopened, labeled, unlabeled, ready_for_review, review_requested, converted_to_draft, closed]
   pull_request_review:
     types: [submitted]
   pull_request_review_comment:
@@ -19,12 +19,12 @@ env:
   PR_URL: ${{ github.event.pull_request.html_url }}
   GITHUB_TOKEN: ${{ secrets.BOARD_AUTOMATION }}
   EXCLUDE_LABEL: 'no-issue'
-  IN_PROGRESS_COLUMN_NAME: '"IN_PROGRESS"'
-  REVIEW_REQUIRED_COLUMN_NAME: '"REVIEW_REQUIRED"'
-  IN_REVIEW_COLUMN_NAME: '"IN_REVIEW"'
-  APPROVED_COLUMN_NAME: '"APPROVED"'
-  MERGED_COLUMN_NAME: '"MERGED"'
-  DONE_COLUMN_NAME: '"DONE"'
+  IN_PROGRESS_COLUMN_NAME: '"In Progress"'
+  REVIEW_REQUIRED_COLUMN_NAME: '"Waiting Review"'
+  IN_REVIEW_COLUMN_NAME: '"In Review"'
+  APPROVED_COLUMN_NAME: '"Approved"'
+  MERGED_COLUMN_NAME: '"Merged"'
+  DONE_COLUMN_NAME: '"Done"'
   ITERATION_FIELD_NAME: Iteration   # See project settings (default is `Iteration`)
 
 jobs:
@@ -33,9 +33,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-#######
-## Gather data, reopen closed issues and ensure work item is on the board
-#######
+      #######
+      ## Gather data, reopen closed issues and ensure work item is on the board
+      #######
+      # yamllint disable rule:line-length
       - name: 'Get linked issue id and state'
         id: linked-issue
         run: |
@@ -58,33 +59,24 @@ jobs:
       - name: 'Check if PR raised by bot'
         id: bot-pr
         if: startsWith(github.head_ref, 'renovate/') == true || startsWith(github.head_ref, 'dependabot/') == true
-        uses: actions/github-script@v6.1.0
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            console.log("Bot created PR!");
-
-      - name: 'Set bot PR to true'
-        id: set-bot
-        if: steps.bot-pr.outcome == 'success'
         run: echo 'BOT_PR=true' >> $GITHUB_ENV
 
       - name: 'Check for linked issue'
         id: linked
         if: |
-          env.LINKED_ISSUE_ID != '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
+          env.LINKED_ISSUE_ID != '' &&
+           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
         uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             console.log("Linked Issue Found!");
-      
+
       - name: 'Check for linked issue exclusion label'
         id: exclude-linked
         if: |
-          steps.bot-pr.outcome == 'success' || env.LINKED_ISSUE_ID == '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
+          steps.bot-pr.outcome == 'success' || env.LINKED_ISSUE_ID == '' &&
+           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
         uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
@@ -200,8 +192,8 @@ jobs:
       - name: 'Add linked issue to the project'
         id: issue-to-project
         if: |
-          env.LINKED_ISSUE_ID != '' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
+          env.LINKED_ISSUE_ID != '' &&
+           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
         run: |
           issue_item_id="$( gh api graphql -f query='
             mutation($project:ID!, $issue:ID!) {
@@ -216,8 +208,8 @@ jobs:
       - name: 'Add exclusion labeled PR to the project'
         id: pr-to-project
         if: |
-          env.BOT_PR == true || steps.issue-to-project.outcome == 'skipped' && 
-          contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
+          env.BOT_PR == true || steps.issue-to-project.outcome == 'skipped' &&
+           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
         run: |
           pr_item_id="$( gh api graphql -f query='
             mutation($project:ID!, $pr:ID!) {
@@ -241,13 +233,13 @@ jobs:
                 }
               }
             }' -f clientMutationId=$AUTHOR_ID -f issueId=$LINKED_ISSUE_ID
-
       # check the env vars before the update to help debugging
+
       - run: env
 
-#######
-## Set the variables ready to update work item on project board
-#######
+      #######
+      ## Set the variables ready to update work item on project board
+      #######
       - name: 'Set draft work item for progress column'
         id: draft-pr
         if: github.event.pull_request.draft == 'true' || env.IS_PR_DRAFT == 'true'
@@ -259,13 +251,13 @@ jobs:
       - name: 'Set work item for review required column'
         id: review-required
         if: |
-          github.event.action == 'ready_for_review' || 
-          env.IS_PR_DRAFT != 'true' && env.REVIEWS_COUNT == 'null'
+          github.event.action == 'ready_for_review' ||
+           env.IS_PR_DRAFT != 'true' && env.REVIEWS_COUNT == 'null'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
 
-      - name: 'Set work item for in review column' 
+      - name: 'Set work item for in review column'
         id: changes-requested
         if: |
           (steps.draft-pr.outcome == 'skipped' && env.REVIEWS_COUNT != 'null' &&
@@ -316,9 +308,9 @@ jobs:
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.IN_PROGRESS_COLUMN }} >> $GITHUB_ENV
 
-#######
-## Take the set item fields, update and move the item on the board
-#######
+      #######
+      ## Take the set item fields, update and move the item on the board
+      #######
       - name: Move project board item
         run: |
           gh api graphql -f query='
@@ -356,3 +348,22 @@ jobs:
               -f status_value=${{ env.CURRENT_STATUS }} \
               -f iteration_field=$ITERATION_FIELD_ID \
               -f iteration_value=${{ env.CURRENT_ITERATION }}
+
+  verify-changelog-updated:
+    if: |
+      startsWith(github.head_ref, 'renovate/') != true && github.event.pull_request.draft != true
+       && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
+    name: Verify CHANGELOG Updated
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      # yamllint enable rule:line-length
+      - name: Check changelog entry
+        uses: Zomzog/changelog-checker@v1.2.0
+        with:
+          fileName: CHANGELOG.md
+          noChangelogLabel: "no-changelog"
+          checkNotification: Simple
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
