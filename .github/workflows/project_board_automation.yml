@@ -209,7 +209,7 @@ jobs:
         id: pr-to-project
         if: |
           (steps.issue-to-project.outcome == 'skipped' &&
-           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true) || (env.BOT_PR == true))
+           contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true) || (env.BOT_PR == true)
         run: |
           pr_item_id="$( gh api graphql -f query='
             mutation($project:ID!, $pr:ID!) {
