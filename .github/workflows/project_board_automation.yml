@@ -60,7 +60,9 @@ jobs:
 
       - name: 'Check if PR raised by bot'
         id: bot-pr
-        if: startsWith(github.head_ref, 'renovate/') == true || startsWith(github.head_ref, 'dependabot/') == true
+        if: |
+          startsWith(github.head_ref, 'renovate/') == true || startsWith(github.head_ref, 'dependabot/') == true
+           || github.actor == 'dependabot[bot]' || github.actor != 'renovate[bot]'
         run: echo 'BOT_PR=true' >> $GITHUB_ENV
 
       - name: 'Check for linked issue'
