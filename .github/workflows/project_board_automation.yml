@@ -354,6 +354,8 @@ jobs:
     env:
       IS_BOT: ${{needs.bot-pr.outputs.is-bot}}
     steps:
+      # check the env vars before the update to help debugging
+      - run: env
       - name: Checkout
         id: checkout
         if: |
