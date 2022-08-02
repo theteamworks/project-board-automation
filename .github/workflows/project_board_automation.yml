@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     outputs:
-      bot-pr: ${{ steps.bot-pr.outputs.is-bot }}
+      bot-pr-output: ${{ steps.bot-pr.outputs.is-bot }}
     steps:
       #######
       ## Gather data, reopen closed issues and ensure work item is on the board
@@ -64,7 +64,7 @@ jobs:
            || github.actor == 'dependabot[bot]' || github.actor != 'renovate[bot]'
         run: |
           echo 'BOT_PR=true' >> $GITHUB_ENV
-          echo "::set-output name=is-bot::$true"
+          echo "::set-output name=is-bot::true"
       - name: 'Check for linked issue'
         id: linked
         if: |
@@ -352,7 +352,7 @@ jobs:
     needs: project-board-automation
     runs-on: ubuntu-latest
     env:
-      IS_BOT: ${{needs.bot-pr.outputs.is-bot}}
+      IS_BOT: ${{needs.project-board-automation.outputs.bot-pr-output}}
     steps:
       # check the env vars before the update to help debugging
       - run: env
