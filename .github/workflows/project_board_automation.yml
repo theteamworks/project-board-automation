@@ -359,7 +359,7 @@ jobs:
       - name: Checkout
         id: checkout
         if: |
-          env.IS_BOT != true || github.event.pull_request.draft != true
+          IS_BOT != true || github.event.pull_request.draft != true
            || contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
         uses: actions/checkout@v3
       # yamllint enable rule:line-length
