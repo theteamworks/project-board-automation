@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     outputs:
-      bot_pr: ${{ steps.bot-pr.outputs.is-bot }}
+      bot-pr: ${{ steps.bot-pr.outputs.is-bot }}
     steps:
       #######
       ## Gather data, reopen closed issues and ensure work item is on the board
