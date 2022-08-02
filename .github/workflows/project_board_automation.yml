@@ -356,11 +356,19 @@ jobs:
     steps:
       # check the env vars before the update to help debugging
       - run: env
-      - name: Checkout
-        id: checkout
+      - name: 'Check if changlelog required'
+        id: check-run
         if: |
           env.IS_BOT != true || github.event.pull_request.draft != true
            || contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
+        uses: actions/github-script@v6.1.0
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log("Will skip this job if no changelkog required!");
+      - name: Checkout
+        id: checkout
+        if: steps.check-run.outcome == 'success'
         uses: actions/checkout@v3
       # yamllint enable rule:line-length
       - name: Check changelog entry
