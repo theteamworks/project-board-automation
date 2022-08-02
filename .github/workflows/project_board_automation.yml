@@ -32,6 +32,8 @@ jobs:
     name: 'Linked Issues & Project Board Automation'
     runs-on: ubuntu-latest
     permissions: write-all
+    outputs:
+      bot_pr: ${{ steps.bot-pr.outputs.is-bot }}
     steps:
       #######
       ## Gather data, reopen closed issues and ensure work item is on the board
@@ -39,8 +41,6 @@ jobs:
       # yamllint disable rule:line-length
       - name: 'Get linked issue id and state'
         id: linked-issue
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api graphql -f query='
             query($pr_url: URI!) {
@@ -57,14 +57,13 @@ jobs:
             }'  -f pr_url=$PR_URL > data.json
           echo 'LINKED_ISSUE_STATE='$(jq '.data.resource.closingIssuesReferences.nodes[] | .state' data.json) >> $GITHUB_ENV
           echo 'LINKED_ISSUE_ID='$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json) >> $GITHUB_ENV
-
       - name: 'Check if PR raised by bot'
         id: bot-pr
         if: |
           startsWith(github.head_ref, 'renovate/') == true || startsWith(github.head_ref, 'dependabot/') == true
            || github.actor == 'dependabot[bot]' || github.actor != 'renovate[bot]'
         run: echo 'BOT_PR=true' >> $GITHUB_ENV
-
+             echo "::set-output name=is-bot::true"
       - name: 'Check for linked issue'
         id: linked
         if: |
@@ -75,7 +74,6 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             console.log("Linked Issue Found!");
-
       - name: 'Check for linked issue exclusion label'
         id: exclude-linked
         if: |
@@ -86,7 +84,6 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             console.log("Exclusion label added, or a bot-PR no linked issue required!");
-
       - name: 'Fail if no linked issue or exclusion label'
         id: exclude-linked-error
         if: steps.linked.outcome == 'skipped' && steps.exclude-linked.outcome == 'skipped'
@@ -96,7 +93,6 @@ jobs:
           script: |
             console.log("No linked issue or exclusion label!");
             core.setFailed("Link an issue and rerun, or, add the exclusion label!");
-
       - name: 'Fail if linked issue AND exclusion label'
         id: linked-and-nochangelog
         if: steps.linked.outcome == 'success' && steps.exclude-linked.outcome == 'success'
@@ -106,7 +102,6 @@ jobs:
           script: |
             console.log("Remove exclusion label, linked issue found!");
             core.setFailed("Remove exclusion label, linked issue found!");
-
       - name: 'Get project related data'
         id: project-data
         run: |
@@ -135,7 +130,6 @@ jobs:
           echo 'DONE_COLUMN='$(jq --arg merged ${{ env.DONE_COLUMN_NAME }} '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name==$merged) |.id' data.json) >> $GITHUB_ENV
           echo 'ITERATION_FIELD_ID='$(jq --arg iteration_field_name $ITERATION_FIELD_NAME '.data.organization.projectNext.fields.nodes[] | select(.name==$iteration_field_name) | .id' data.json) >> $GITHUB_ENV
           echo 'CURRENT_ITERATION='$(jq --arg iteration_field_name $ITERATION_FIELD_NAME '.data.organization.projectNext.fields.nodes[] | select(.name==$iteration_field_name) |.settings | fromjson.configuration.iterations[0] | .id' data.json) >> $GITHUB_ENV
-
       - name: 'Get PR state, review decision and author'
         id: pr-status
         run: |
@@ -174,7 +168,6 @@ jobs:
           echo 'PR_STATE='$(jq '.data.resource | .state' data.json) >> $GITHUB_ENV
           echo 'PR_ID='$(jq '.data.resource | .id' data.json) >> $GITHUB_ENV
           echo 'AUTHOR_NAME='$(jq '.data.resource.author | .login' data.json) >> $GITHUB_ENV
-
       - name: 'Get PR author id'
         id: pr-author
         if: steps.pr-status.outcome == 'success'
@@ -192,7 +185,6 @@ jobs:
               }
             }'  -f author_name=$AUTHOR_NAME > data.json
           echo 'AUTHOR_ID='$(jq '.data.search.edges[] | .node | .id' data.json) >> $GITHUB_ENV
-
       - name: 'Add linked issue to the project'
         id: issue-to-project
         if: |
@@ -208,7 +200,6 @@ jobs:
               }
             }' -f project=$PROJECT_ID -f issue=$LINKED_ISSUE_ID --jq '.data.addProjectNextItem.projectNextItem.id')"
           echo 'BOARD_ITEM_ID='$issue_item_id >> $GITHUB_ENV
-
       - name: 'Add exclusion labeled PR to the project'
         id: pr-to-project
         if: |
@@ -224,7 +215,6 @@ jobs:
               }
             }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectNextItem.projectNextItem.id')"
           echo 'BOARD_ITEM_ID='$pr_item_id >> $GITHUB_ENV
-
       - name: 'Add BOT PR to the project'
         id: bot-pr-to-project
         if: env.BOT_PR == 'true'
@@ -238,10 +228,9 @@ jobs:
               }
             }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectNextItem.projectNextItem.id')"
           echo 'BOARD_ITEM_ID='$pr_item_id >> $GITHUB_ENV
-
       - name: 'Reopen if the linked issue closed'
         id: reopen-issue
-        if: steps.issue-to-project.outcome == 'success' && env.LINKED_ISSUE_STATE == '"CLOSED"'
+        if: steps.issue-to-project.outcome == 'success' && env.LINKED_ISSUE_STATE == '"CLOSED"' && env.PR_STATE != '"MERGED"'
         run: |
           gh api graphql -f query='
             mutation($clientMutationId:String!, $issueId:ID!) {
@@ -252,7 +241,6 @@ jobs:
               }
             }' -f clientMutationId=$AUTHOR_ID -f issueId=$LINKED_ISSUE_ID
       # check the env vars before the update to help debugging
-
       - run: env
 
       #######
@@ -265,7 +253,6 @@ jobs:
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_ITERATION='$CURRENT_ITERATION >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.IN_PROGRESS_COLUMN }} >> $GITHUB_ENV
-
       - name: 'Set work item for review required column'
         id: review-required
         if: |
@@ -274,7 +261,6 @@ jobs:
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.REVIEW_REQUIRED_COLUMN }} >> $GITHUB_ENV
-
       - name: 'Set work item for in review column'
         id: changes-requested
         if: |
@@ -284,21 +270,18 @@ jobs:
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.IN_REVIEW_COLUMN }} >> $GITHUB_ENV
-
       - name: 'Set work item for approved column'
         id: approved
         if: steps.draft-pr.outcome == 'skipped' && env.REVIEW_DECISION == '"APPROVED"'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
-
       - name: 'Set work item for merged column'
         id: merged
         if: env.PR_STATE == '"MERGED"' || github.event.pull_request.merged == true
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.MERGED_COLUMN }} >> $GITHUB_ENV
-
       - name: 'Close linked issue when PR mergd'
         id: close-issue
         if: steps.merged.outcome == 'success' && steps.linked.outcome == 'success'
@@ -311,21 +294,18 @@ jobs:
                 }
               }
             }' -f clientMutationId=$AUTHOR_ID -f issueId=$LINKED_ISSUE_ID
-
       - name: 'Set closed PR for done column'
         id: closed-pr
         if: steps.exclude-linked.outcome == 'success' && github.event.pull_request.closed == true
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.DONE_COLUMN }} >> $GITHUB_ENV
-
       - name: 'Set closed PR issue to in progress column'
         id: closed-pr-with-issue
-        if: steps.linked.outcome == 'success' && github.event.pull_request.merged == true
+        if: steps.linked.outcome == 'success' && github.event.pull_request.merged == true && env.PR_STATE != '"MERGED"'
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.IN_PROGRESS_COLUMN }} >> $GITHUB_ENV
-
       #######
       ## Take the set item fields, update and move the item on the board
       #######
@@ -366,18 +346,23 @@ jobs:
               -f status_value=${{ env.CURRENT_STATUS }} \
               -f iteration_field=$ITERATION_FIELD_ID \
               -f iteration_value=${{ env.CURRENT_ITERATION }}
-
   verify-changelog-updated:
-    if: |
-      startsWith(github.head_ref, 'renovate/') != true && github.event.pull_request.draft != true
-       && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
     name: Verify CHANGELOG Updated
+    needs: project-board-automation
     runs-on: ubuntu-latest
+    env:
+      IS_BOT: ${{needs.bot-pr.outputs.is-bot}}
     steps:
       - name: Checkout
+        id: checkout
+        if: |
+          env.IS_BOT == true || github.event.pull_request.draft != true
+           && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
         uses: actions/checkout@v3
       # yamllint enable rule:line-length
       - name: Check changelog entry
+        id: changelog-check
+        if: steps.checkout.outcome == 'success'
         uses: Zomzog/changelog-checker@v1.2.0
         with:
           fileName: CHANGELOG.md
