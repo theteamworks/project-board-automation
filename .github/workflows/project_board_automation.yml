@@ -359,8 +359,8 @@ jobs:
       - name: 'Check if changlelog required'
         id: check-run
         if: |
-          env.IS_BOT != '"true"' || github.event.pull_request.draft != true
-           || contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
+          env.IS_BOT != 'true' || github.event.pull_request.draft != true
+           && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
         uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
