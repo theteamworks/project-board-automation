@@ -66,7 +66,7 @@ jobs:
            || github.actor == 'dependabot[bot]' || github.actor != 'renovate[bot]'
         run: |
           echo 'BOT_PR=true' >> $GITHUB_ENV
-          echo "::set-output name=is-bot::'true'"
+          echo "::set-output name=is-bot::1"
       - name: 'Check for linked issue'
         id: linked
         if: |
@@ -360,7 +360,7 @@ jobs:
       - name: Checkout
         id: checkout
         if: |
-          (env.IS_BOT != 'true' || github.event.pull_request.draft != true
+          (env.IS_BOT != 1 || github.event.pull_request.draft != true
            || (contains(github.event.pull_request.labels.*.name, 'no-changelog') != true))
         uses: actions/checkout@v3
       # yamllint enable rule:line-length
