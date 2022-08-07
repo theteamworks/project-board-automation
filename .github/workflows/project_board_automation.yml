@@ -363,7 +363,7 @@ jobs:
         run: echo "bot PR so skipping"
       - name: No changelog required
         id: changelog-excluded
-        if: github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
+        if: github.event.pull_request.draft != true && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
         run: echo "changelog excluded so skipping" 
       - name: Checkout
         id: checkout
