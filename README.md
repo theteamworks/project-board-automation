@@ -40,7 +40,7 @@ env:
   APPROVED_COLUMN_NAME: '"APPROVED"'
   MERGED_COLUMN_NAME: '"MERGED"'
   DONE_COLUMN_NAME: '"DONE"'
-  ITERATION_FIELD_NAME: Iteration   # See project settings (the default is `Iteration` but can be changed)
+  ITERATION_FIELD_NAME: Iteration   # See project settings (the default is `Iteration` but can it be changed in the GitHub ui)
 
 ```
 
