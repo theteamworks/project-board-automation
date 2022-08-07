@@ -357,11 +357,19 @@ jobs:
       IS_BOT: ${{needs.project-board-automation.outputs.bot-pr-output}}
     steps:
       - run: env
+      - name: Check bot
+        id: check-bot
+        if: env.IS_BOT != '1'
+        run: echo "bot PR so skipping"
+      - name: No changelog required
+        id: changelog-excluded
+        if: |
+          github.event.pull_request.draft != true
+           && (contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
+        run: echo "changelog excluded so skipping" 
       - name: Checkout
         id: checkout
-        if: |
-          (env.IS_BOT != '1' || github.event.pull_request.draft != true
-           || (contains(github.event.pull_request.labels.*.name, 'no-changelog') != true))
+        if: steps.check-bot.outcome == 'skipped' && steps.changelog-excluded.outcome == 'skipped'
         uses: actions/checkout@v3
       # yamllint enable rule:line-length
       - name: Check changelog entry
