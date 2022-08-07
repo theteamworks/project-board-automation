@@ -363,7 +363,7 @@ jobs:
         run: echo "pull request opened by bot"
       - name: No changelog required
         id: changelog-excluded
-        if: github.event.pull_request.draft != true && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
+        if: github.event.pull_request.draft == true || contains(github.event.pull_request.labels.*.name, 'no-changelog') == true
         run: echo "changelog requirment excluded"
       - name: Checkout
         id: checkout
