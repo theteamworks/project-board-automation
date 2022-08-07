@@ -42,7 +42,7 @@ jobs:
       - name: 'Get linked issue id and state'
         id: linked-issue
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api graphql -f query='
             query($pr_url: URI!) {
