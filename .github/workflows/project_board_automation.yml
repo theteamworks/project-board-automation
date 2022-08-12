@@ -275,7 +275,9 @@ jobs:
           echo 'CURRENT_STATUS='${{ env.IN_REVIEW_COLUMN }} >> $GITHUB_ENV
       - name: 'Set work item for approved column'
         id: approved
-        if: steps.draft-pr.outcome == 'skipped' && env.REVIEW_DECISION == '"APPROVED"'
+        if: |
+          (steps.draft-pr.outcome == 'skipped' && (env.REVIEW_DECISION == '"APPROVED"' ||
+           env.LATEST_REVIEW_STATE == '"APPROVED"'))
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.APPROVED_COLUMN }} >> $GITHUB_ENV
@@ -299,7 +301,7 @@ jobs:
             }' -f clientMutationId=$AUTHOR_ID -f issueId=$LINKED_ISSUE_ID
       - name: 'Set closed PR for done column'
         id: closed-pr
-        if: steps.exclude-linked.outcome == 'success' && github.event.pull_request.closed == true
+        if: github.event.pull_request.closed == true
         run: |
           echo 'ITEM_ID='${{  env.BOARD_ITEM_ID }} >> $GITHUB_ENV
           echo 'CURRENT_STATUS='${{ env.DONE_COLUMN }} >> $GITHUB_ENV
@@ -360,11 +362,11 @@ jobs:
       - name: Check bot
         id: check-bot
         if: env.IS_BOT == '1'
-        run: echo "pull request opened by bot"
+        run: echo "Pull request opened by bot - no changelog required"
       - name: No changelog required
         id: changelog-excluded
         if: github.event.pull_request.draft == true || contains(github.event.pull_request.labels.*.name, 'no-changelog') == true
-        run: echo "changelog requirment excluded"
+        run: echo "Changelog requirment excluded"
       - name: Checkout
         id: checkout
         if: steps.check-bot.outcome == 'skipped' && steps.changelog-excluded.outcome == 'skipped'
