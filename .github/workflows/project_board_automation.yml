@@ -77,7 +77,7 @@ jobs:
         if: |
           env.LINKED_ISSUE_ID != '' &&
            contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
-        uses: actions/github-script@v6.1.0
+        uses: actions/github-script@v6.3.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -87,7 +87,7 @@ jobs:
         if: |
           steps.bot-pr.outcome == 'success' || env.LINKED_ISSUE_ID == '' &&
            contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
-        uses: actions/github-script@v6.1.0
+        uses: actions/github-script@v6.3.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -95,7 +95,7 @@ jobs:
       - name: 'Fail if no linked issue or exclusion label'
         id: exclude-linked-error
         if: steps.linked.outcome == 'skipped' && steps.exclude-linked.outcome == 'skipped'
-        uses: actions/github-script@v6.1.0
+        uses: actions/github-script@v6.3.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -104,7 +104,7 @@ jobs:
       - name: 'Fail if linked issue AND exclusion label'
         id: linked-and-nochangelog
         if: steps.linked.outcome == 'success' && steps.exclude-linked.outcome == 'success'
-        uses: actions/github-script@v6.1.0
+        uses: actions/github-script@v6.3.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -420,7 +420,7 @@ jobs:
           Write-Host "::set-output name=changelog_changed::$HasDiff"
       - name: "Report fail"
         if: steps.check_file_changed.outputs.changelog_changed != 'True' && steps.check_file_changed.outcome == 'success'
-        uses: actions/github-script@v6.1.0
+        uses: actions/github-script@v6.3.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
