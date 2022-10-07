@@ -419,7 +419,7 @@ jobs:
       # Run the step only with "changelog_changed" equals "True"
       - name: "Report fail"
         # steps.<step_id>.outputs.<output name>
-        if: steps.check_file_changed.outputs.changelog_changed != 'True' && check_file_changed.outcome == 'success'
+        if: steps.check_file_changed.outputs.changelog_changed != 'True' && steps.check_file_changed.outcome == 'success'
         uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
