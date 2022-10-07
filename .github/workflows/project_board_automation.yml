@@ -403,7 +403,7 @@ jobs:
         uses: actions/checkout@v3
       # yamllint enable rule:line-length
       - name: "Check changelog entry 2"
-      - shell: pwsh
+        shell: pwsh
       # Give an id to the step, so we can reference it later
         id: check_file_changed
         if: steps.checkout-2.outcome == 'success'
@@ -419,7 +419,8 @@ jobs:
           Write-Host "::set-output name=changelog_changed::$HasDiff"
 
       # Run the step only with "changelog_changed" equals "True"
-      - shell: pwsh
+      - name: "Report fail"
+        shell: pwsh
         # steps.<step_id>.outputs.<output name>
         if: steps.check_file_changed.outputs.changelog_changed != 'True'
         uses: actions/github-script@v6.1.0
