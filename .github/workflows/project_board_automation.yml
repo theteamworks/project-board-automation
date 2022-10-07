@@ -420,7 +420,6 @@ jobs:
 
       # Run the step only with "changelog_changed" equals "True"
       - name: "Report fail"
-        shell: pwsh
         # steps.<step_id>.outputs.<output name>
         if: steps.check_file_changed.outputs.changelog_changed != 'True'
         uses: actions/github-script@v6.1.0
