@@ -397,7 +397,7 @@ jobs:
         run: echo "changelog requirment excluded"
       - name: "Checkout 2"
         id: checkout-2
-        if: steps.check-bot-2.outcome == 'skipped' && steps.changelog-excluded.outcome == 'skipped'
+        if: steps.check-bot-2.outcome == 'skipped' && steps.changelog-excluded-2.outcome == 'skipped'
         uses: actions/checkout@v3
       # yamllint enable rule:line-length
       - name: "Check changelog entry 2"
