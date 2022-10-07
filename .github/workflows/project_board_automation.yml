@@ -393,7 +393,7 @@ jobs:
         run: echo "pull request opened by bot"
       - name: "No changelog required 2"
         id: changelog-excluded-2
-        if: github.event.pull_request.draft == true || contains(github.event.pull_request.labels.*.name, 'no-changelog') == true
+        if: github.event.pull_request.draft != true || contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
         run: echo "changelog requirment excluded"
       - name: "Checkout 2"
         id: checkout-2
@@ -419,7 +419,7 @@ jobs:
       # Run the step only with "changelog_changed" equals "True"
       - name: "Report fail"
         # steps.<step_id>.outputs.<output name>
-        if: steps.check_file_changed.outputs.changelog_changed != 'True'
+        if: steps.check_file_changed.outputs.changelog_changed != 'True' && check_file_changed.outcome == 'success'
         uses: actions/github-script@v6.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
