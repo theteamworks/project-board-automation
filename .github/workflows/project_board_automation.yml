@@ -399,8 +399,8 @@ jobs:
         id: checkout-2
         if: steps.check-bot-2.outcome == 'skipped' && steps.changelog-excluded-2.outcome == 'skipped'
         uses: actions/checkout@v3
-          with:
-            fetch-depth: 0
+        with:
+          fetch-depth: 0
       # yamllint enable rule:line-length
       - name: "Check changelog entry 2"
         shell: pwsh
