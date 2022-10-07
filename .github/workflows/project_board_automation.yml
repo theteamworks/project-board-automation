@@ -380,3 +380,51 @@ jobs:
           checkNotification: Simple
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  verify-changelog-updated2:
+    name: "Verify CHANGELOG Updated 2"
+    needs: project-board-automation
+    runs-on: ubuntu-latest
+    env:
+      IS_BOT: ${{needs.project-board-automation.outputs.bot-pr-output}}
+    steps:
+      - run: env
+      - name: "Check bot 2"
+        id: check-bot-2
+        if: env.IS_BOT == '1'
+        run: echo "pull request opened by bot"
+      - name: "No changelog required 2"
+        id: changelog-excluded-2
+        if: github.event.pull_request.draft == true || contains(github.event.pull_request.labels.*.name, 'no-changelog') == true
+        run: echo "changelog requirment excluded"
+      - name: "Checkout 2"
+        id: checkout-2
+        if: steps.check-bot-2.outcome == 'skipped' && steps.changelog-excluded.outcome == 'skipped'
+        uses: actions/checkout@v3
+      # yamllint enable rule:line-length
+      - name: "Check changelog entry 2"
+      - shell: pwsh
+      # Give an id to the step, so we can reference it later
+        id: check_file_changed
+        if: steps.checkout-2.outcome == 'success'
+        run: |
+          # Diff HEAD with the previous commit
+          $diff = git diff --name-only HEAD^ HEAD
+
+          # Check if a file under docs/ or with the .md extension has changed (added, modified, deleted)
+          $SourceDiff = $diff | Where-Object { $_ -match 'CHANGELOG.md' }
+          $HasDiff = $SourceDiff.Length -gt 0
+
+          # Set the output named "changelog_changed"
+          Write-Host "::set-output name=changelog_changed::$HasDiff"
+
+      # Run the step only with "changelog_changed" equals "True"
+      - shell: pwsh
+        # steps.<step_id>.outputs.<output name>
+        if: steps.check_file_changed.outputs.changelog_changed != 'True'
+        uses: actions/github-script@v6.1.0
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log("Changelog should be updated, or if a small fix the 'no-changelog label used!");
+            core.setFailed("Changelog should be updated, or if a small fix the 'no-changelog label used!");
