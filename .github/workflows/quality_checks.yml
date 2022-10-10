@@ -17,7 +17,7 @@ jobs:
     name: Yamllint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.1.0
       - name: yaml-lint
         uses: ibiqlik/action-yamllint@v3.1.0
         with:
@@ -27,7 +27,7 @@ jobs:
     name: Markdownlint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v3.1.0
     - uses: nosborn/github-action-markdown-cli@v3.1.0
       name: Markdownlint
       with:
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check out
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3.1.0
 
     - name: Run PySpelling
       uses: rojopolis/spellcheck-github-actions@0.26.0
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
 

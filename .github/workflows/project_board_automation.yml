@@ -374,7 +374,7 @@ jobs:
       - name: Checkout
         id: checkout
         if: steps.check-bot.outcome == 'skipped' && steps.changelog-excluded.outcome == 'skipped'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.1.0
       # yamllint enable rule:line-length
       - name: Check changelog entry
         id: changelog-check
@@ -406,7 +406,7 @@ jobs:
       - name: "Checkout 2"
         id: checkout-2
         if: steps.check-bot-2.outcome == 'skipped' && steps.changelog-excluded-2.outcome == 'skipped'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
       - name: "Check changelog entry 2"
