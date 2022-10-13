@@ -328,7 +328,7 @@ jobs:
               $iteration_field: ID!
               $iteration_value: String!
             ) {
-              set_status: updateProjectV2NextItemField(input: {
+              set_status: updateProjectV2ItemFieldValue(input: {
                 projectId: $project
                 itemId: $item
                 fieldId: $status_field
@@ -340,7 +340,7 @@ jobs:
                   id
                   }
               }
-              set_iteration: updateProjectV2NextItemField(input: {
+              set_iteration: updateProjectV2ItemFieldValue(input: {
                 projectId: $project
                 itemId: $item
                 fieldId: $iteration_field
