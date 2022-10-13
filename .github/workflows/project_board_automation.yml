@@ -336,7 +336,7 @@ jobs:
                   singleSelectOptionId: $status_value
                   }
               }) {
-                projectNextItem {
+                projectV2NextItem {
                   id
                   }
               }
