@@ -336,7 +336,7 @@ jobs:
                   singleSelectOptionId: $status_value
                   }
               }) {
-                projectV2NextItem {
+                projectV2Item {
                   id
                   }
               }
@@ -348,7 +348,7 @@ jobs:
                   iterationId: $iteration_value
                   }
               }) {
-                projectV2NextItem {
+                projectV2Item {
                   id
                 }
               }
