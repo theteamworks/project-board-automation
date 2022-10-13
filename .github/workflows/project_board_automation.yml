@@ -116,7 +116,7 @@ jobs:
           gh api graphql -f query='
             query($org: String!, $number: Int!) {
               organization(login: $org){
-                projectNext(number: $number) {
+                projectV2Next(number: $number) {
                   id
                   fields(first:20) {
                     nodes {
@@ -201,7 +201,7 @@ jobs:
         run: |
           issue_item_id="$( gh api graphql -f query='
             mutation($project:ID!, $issue:ID!) {
-              addProjectNextItem(input: {projectId: $project, contentId: $issue}) {
+              addProjectV2NextItem(input: {projectId: $project, contentId: $issue}) {
                 projectNextItem {
                   id
                 }
@@ -216,7 +216,7 @@ jobs:
         run: |
           pr_item_id="$( gh api graphql -f query='
             mutation($project:ID!, $pr:ID!) {
-              addProjectNextItem(input: {projectId: $project, contentId: $pr}) {
+              addProjectV2NextItem(input: {projectId: $project, contentId: $pr}) {
                 projectNextItem {
                   id
                 }
@@ -229,7 +229,7 @@ jobs:
         run: |
           pr_item_id="$( gh api graphql -f query='
             mutation($project:ID!, $pr:ID!) {
-              addProjectNextItem(input: {projectId: $project, contentId: $pr}) {
+              addProjectV2NextItem(input: {projectId: $project, contentId: $pr}) {
                 projectNextItem {
                   id
                 }
@@ -328,7 +328,7 @@ jobs:
               $iteration_field: ID!
               $iteration_value: String!
             ) {
-              set_status: updateProjectNextItemField(input: {
+              set_status: updateProjectV2NextItemField(input: {
                 projectId: $project
                 itemId: $item
                 fieldId: $status_field
@@ -338,13 +338,13 @@ jobs:
                   id
                   }
               }
-              set_iteration: updateProjectNextItemField(input: {
+              set_iteration: updateProjectV2NextItemField(input: {
                 projectId: $project
                 itemId: $item
                 fieldId: $iteration_field
                 value: $iteration_value
               }) {
-                projectNextItem {
+                projectV2NextItem {
                   id
                 }
               }
