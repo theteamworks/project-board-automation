@@ -385,7 +385,7 @@ jobs:
     env:
       IS_BOT: ${{needs.project-board-automation.outputs.bot-pr-output}}
     if: |
-      env.IS_BOT != '1' && github.event.pull_request.draft != true
+      IS_BOT != '1' && github.event.pull_request.draft != true
        && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
     steps:
       - name: Checkout
