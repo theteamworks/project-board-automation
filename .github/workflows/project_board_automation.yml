@@ -70,7 +70,7 @@ jobs:
            || (github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]'))
         run: |
           echo 'BOT_PR=true' >> $GITHUB_ENV
-          echo "is-bot=1" >> $GITHUB_OUTPUT
+          echo "is-bot=true" >> $GITHUB_OUTPUT
       - name: 'Check for linked issue'
         id: linked
         if: |
@@ -383,7 +383,7 @@ jobs:
     needs: project-board-automation
     runs-on: ubuntu-latest
     if: |
-      ${{needs.project-board-automation.outputs.bot-pr-output}} != '1' && github.event.pull_request.draft != true
+      ${{needs.project-board-automation.outputs.bot-pr-output}} != true && github.event.pull_request.draft != true
        && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
     steps:
       - name: Checkout
