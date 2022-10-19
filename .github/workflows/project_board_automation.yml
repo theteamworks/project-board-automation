@@ -383,13 +383,26 @@ jobs:
     needs: project-board-automation
     runs-on: ubuntu-latest
     if: |
-      ((startsWith(github.head_ref, 'renovate/') != true || startsWith(github.head_ref, 'dependabot/') != true)
-       || (github.actor != 'dependabot[bot]' || github.actor != 'renovate[bot]') && github.event.pull_request.draft != true
-       && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true)
+      github.event.pull_request.draft != true
+       && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
     steps:
-      - name: Checkout
+      - name: "Check if PR raised by bot"
+        id: bot-no-changelog
+        if: |
+          ((startsWith(github.head_ref, 'renovate/') == true || startsWith(github.head_ref, 'dependabot/') == true)
+           || (github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]'))
+        uses: actions/github-script@v6.3.3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log("A bot-PR so excluded from changelog!");
+      - name: "Checkout"
+        id: checkout
+        if: steps.bot-no-changelog.outcome == 'skipped'
         uses: actions/checkout@v3
-      - name: Check changelog entry
+      - name: "Check changelog entry"
+        id: check-changelog
+        if: steps.checkout.outcome == 'success'
         uses: Zomzog/changelog-checker@v1.2.0
         with:
           fileName: CHANGELOG.md
