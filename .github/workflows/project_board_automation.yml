@@ -383,8 +383,9 @@ jobs:
     needs: project-board-automation
     runs-on: ubuntu-latest
     if: |
-      ${{needs.project-board-automation.outputs.bot-pr-output}} != true && github.event.pull_request.draft != true
-       && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
+      ((startsWith(github.head_ref, 'renovate/') != true || startsWith(github.head_ref, 'dependabot/') != true)
+       || (github.actor != 'dependabot[bot]' || github.actor != 'renovate[bot]') && github.event.pull_request.draft != true
+       && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true)
     steps:
       - name: Checkout
         uses: actions/checkout@v3
