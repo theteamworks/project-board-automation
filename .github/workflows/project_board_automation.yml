@@ -393,7 +393,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      # yamllint enable rule:line-length
       - name: Check changelog entry
         uses: Zomzog/changelog-checker@v1.2.0
         with:
