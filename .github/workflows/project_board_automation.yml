@@ -70,7 +70,7 @@ jobs:
            || (github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]'))
         run: |
           echo 'BOT_PR=true' >> $GITHUB_ENV
-          echo "is-bot=1" >> $GITHUB_ENV
+          echo "is-bot=1" >> $GITHUB_OUTPUT
       - name: 'Check for linked issue'
         id: linked
         if: |
