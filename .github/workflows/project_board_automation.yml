@@ -382,10 +382,8 @@ jobs:
     name: "Verify CHANGELOG Updated"
     needs: project-board-automation
     runs-on: ubuntu-latest
-    env:
-      IS_BOT: ${{needs.project-board-automation.outputs.bot-pr-output}}
     if: |
-      IS_BOT != '1' && github.event.pull_request.draft != true
+      ${{needs.project-board-automation.outputs.bot-pr-output}} != '1' && github.event.pull_request.draft != true
        && contains(github.event.pull_request.labels.*.name, 'no-changelog') != true
     steps:
       - name: Checkout
