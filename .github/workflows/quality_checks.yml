@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: yaml-lint
-        uses: ibiqlik/action-yamllint@v3.1.0
+        uses: ibiqlik/action-yamllint@v3.1.1
         with:
           config_file: .github/workflows/config/.yamllintconfig.yml
 
