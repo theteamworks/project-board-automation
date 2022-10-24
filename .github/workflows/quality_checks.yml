@@ -58,4 +58,4 @@ jobs:
 
       - name: Commitsar conventional commits check
         if: steps.check-out.outcome == 'success'
-        uses: aevea/commitsar@v0.18.0
+        uses: aevea/commitsar@v0.20.0
