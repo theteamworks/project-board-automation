@@ -1,5 +1,5 @@
 
-# GitHub Project Board Automation.
+# GitHub Project Board Automation
 
 An action that will automate the movement of the issues or pull requests on a GitHub projects(beta) board.
 
