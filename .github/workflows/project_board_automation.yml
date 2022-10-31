@@ -36,8 +36,6 @@ jobs:
     name: 'Linked Issues & Project Board Automation'
     runs-on: ubuntu-latest
     permissions: write-all
-    outputs:
-      bot-pr-output: ${{ steps.bot-pr.outputs.is-bot }}
     steps:
       #######
       ## Gather data, reopen closed issues and ensure work item is on the board
@@ -70,7 +68,6 @@ jobs:
            || (github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]'))
         run: |
           echo 'BOT_PR=true' >> $GITHUB_ENV
-          echo "is-bot=true" >> $GITHUB_OUTPUT
       - name: 'Check for linked issue'
         id: linked
         if: |
