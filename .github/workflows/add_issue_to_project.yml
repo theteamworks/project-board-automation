@@ -27,7 +27,7 @@ jobs:
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID -f user=$USER_ID
+            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID -f user_id=$USER_ID
 
       - name: "Add repo identify label"
         run: |
