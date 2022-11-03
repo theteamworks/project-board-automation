@@ -21,7 +21,7 @@ jobs:
       - name: "Add issue"
         run: |
           gh api graphql -f query='
-            mutation($project:ID!, $issue:ID!) {
+            mutation($user_id:ID!, $project:ID!, $issue:ID!) {
               addProjectV2ItemById(input: {clientMutationId: $user_id, projectId: $project, contentId: $issue}) {
                 item {
                   id
