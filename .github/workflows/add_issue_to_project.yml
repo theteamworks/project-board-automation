@@ -14,22 +14,25 @@ env:
   USER: ${{ github.actor }}
 
 jobs:
-  - name: 
-    run: |
-      gh api graphql -f query='
-        mutation($project:ID!, $issue:ID!) {
-          addProjectV2ItemById(input: {projectId: $project, contentId: $issue, clientMutationId: $user}) {
-            item {
-              id
-            }
-          }
-        }' -f project=$PROJECT_ID -f issue=$ISSUE_ID -f user=$USER
-  
-  - name: Add repo identify label
-    run: |
-      gh api graphql -f query='
-        mutation($user:String!, $issue:ID!, $label:[ID!]!) {
-          addLabelsToLabelable(input: {clientMutationId: $user, labelableId: $issue, labelIds: $label}) {
-            clientMutationId
-          }
-        }' -f label=$LABEL_ID -f issue=$ISSUE_ID -f user=$USER
+  add_issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Add issue"
+        run: |
+          gh api graphql -f query='
+            mutation($project:ID!, $issue:ID!) {
+              addProjectV2ItemById(input: {projectId: $project, contentId: $issue, clientMutationId: $user}) {
+                item {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID -f user=$USER
+
+      - name: "Add repo identify label"
+        run: |
+          gh api graphql -f query='
+            mutation($user:String!, $issue:ID!, $label:[ID!]!) {
+              addLabelsToLabelable(input: {clientMutationId: $user, labelableId: $issue, labelIds: $label}) {
+                clientMutationId
+              }
+            }' -f label=$LABEL_ID -f issue=$ISSUE_ID -f user=$USER
