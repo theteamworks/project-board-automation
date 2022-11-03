@@ -12,7 +12,6 @@ env:
   ISSUE_ID: ${{ github.event.issue.node_id }}
   LABEL_ID: ${{ secrets.REPO_LABEL }}
   USER: ${{ github.actor }}
-  USER_ID: "MDQ6VXNlcjgzNTEwMTQ4"
 
 jobs:
   add_issue:
@@ -21,13 +20,13 @@ jobs:
       - name: "Add issue"
         run: |
           gh api graphql -f query='
-            mutation($user_id:ID!, $project:ID!, $issue:ID!) {
-              addProjectV2ItemById(input: {clientMutationId: $user_id, projectId: $project, contentId: $issue}) {
+            mutation($user:String!, $project:ID!, $issue:ID!) {
+              addProjectV2ItemById(input: {clientMutationId: $user, projectId: $project, contentId: $issue}) {
                 item {
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID -f user_id=$USER_ID
+            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID -f user=$USER
 
       - name: "Add repo identify label"
         run: |
