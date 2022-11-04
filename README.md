@@ -1,7 +1,7 @@
 
 # GitHub Project Board Automation
 
-Edits to come, once the release notes have been updated.
+Edits to come, once the release notes have been updated..
 
 An action that will automate the movement of the issues or pull requests on a GitHub projects(beta) board.
 
