@@ -26,6 +26,7 @@ env:
   MERGED_COLUMN_NAME: '"Merged"'
   DONE_COLUMN_NAME: '"Done"'
   ITERATION_FIELD_NAME: Iteration   # See project settings (default is `Iteration`)
+  USER: ${{ github.actor }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -210,48 +211,48 @@ jobs:
               }
             }'  -f author_name=$AUTHOR_NAME > data.json
           echo 'AUTHOR_ID='$(jq '.data.search.edges[] | .node | .id' data.json) >> $GITHUB_ENV
-      - name: 'Add linked issue to the project'
+      - name: "Add linked issue to the project"
         id: issue-to-project
         if: |
           env.LINKED_ISSUE_ID != '' &&
            contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) != true
         run: |
           issue_item_id="$( gh api graphql -f query='
-            mutation($project:ID!, $issue:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
+            mutation($user:String!, $project:ID!, $issue:ID!) {
+              addProjectV2ItemById(input: {clientMutationId: $user, projectId: $project, contentId: $issue}) {
                 item {
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f issue=$LINKED_ISSUE_ID --jq '.data.addProjectV2ItemById.item.id')"
+            }' -f project=$PROJECT_ID -f issue=$LINKED_ISSUE_ID -f user=$USER)"
           echo 'BOARD_ITEM_ID='$issue_item_id >> $GITHUB_ENV
-      - name: 'Add exclusion labeled PR to the project'
+      - name: "Add exclusion labeled PR to the project"
         id: pr-to-project
         if: |
           steps.issue-to-project.outcome == 'skipped' &&
            contains(github.event.pull_request.labels.*.name, env.EXCLUDE_LABEL) == true
         run: |
           pr_item_id="$( gh api graphql -f query='
-            mutation($project:ID!, $pr:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
+            mutation($user:String!, $project:ID!, $pr:ID!) {
+              addProjectV2ItemById(input: {clientMutationId: $user, projectId: $project, contentId: $issue}) {
                 item {
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectV2ItemById.item.id')"
+            }' -f project=$PROJECT_ID -f pr=$PR_ID  -f user=$USER)"
           echo 'BOARD_ITEM_ID='$pr_item_id >> $GITHUB_ENV
-      - name: 'Add BOT PR to the project'
+      - name: "Add BOT PR to the project"
         id: bot-pr-to-project
         if: steps.bot-pr.outcome == 'success'
         run: |
           pr_item_id="$( gh api graphql -f query='
-            mutation($project:ID!, $pr:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
+            mutation($user:String!, $project:ID!, $pr:ID!) {
+              addProjectV2ItemById(input: {clientMutationId: $user, projectId: $project, contentId: $issue}) {
                 item {
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectV2ItemById.item.id')"
+            }' -f project=$PROJECT_ID -f pr=$PR_ID  -f user=$USER)"
           echo 'BOARD_ITEM_ID='$pr_item_id >> $GITHUB_ENV
       - name: 'Reopen if the linked issue closed'
         id: reopen-issue
