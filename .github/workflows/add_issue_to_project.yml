@@ -8,8 +8,8 @@ name: 'Add issue to project board'
       - opened
 env:
   GH_TOKEN: ${{ secrets.GH_NEW_CARD_TO_PROJECT }}
-  PROJECT_ID1: ${{ secrets.PROJECT_ID }}
-  PROJECT_ID: "PVT_kwDOBPpYqc4ACDq4"
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  PROJECT_ID1: "PVT_kwDOBPpYqc4ACDq4"
   ISSUE_ID: ${{ github.event.issue.node_id }}
   LABEL_ID: ${{ secrets.REPO_LABEL }}
   USER: ${{ github.actor }}
