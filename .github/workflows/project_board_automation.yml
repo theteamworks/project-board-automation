@@ -404,7 +404,7 @@ jobs:
       - name: "Check changelog entry"
         id: check-changelog
         if: steps.checkout.outcome == 'success'
-        uses: Zomzog/changelog-checker@v1.2.0
+        uses: Zomzog/changelog-checker@v1.3.0
         with:
           fileName: CHANGELOG.md
           noChangelogLabel: "no-changelog"
