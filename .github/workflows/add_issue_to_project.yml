@@ -30,11 +30,8 @@ jobs:
       - name: "Add repo identifier label"
         run: |
           gh api graphql -f query='
-            mutation($user:String!, $issue:ID!, $labels:[ID!]!) {
-              addLabelsToLabelable(input: {clientMutationId: $user, labelableId: $issue, labelIds: $labels}) {
+            mutation($user:String!, $issue:ID!) {
+              addLabelsToLabelable(input: {clientMutationId: $user, labelableId: $issue, labelIds: ["LA_kwDOHYOSis73zvVw", "LA_kwDOHYOSis73znqb"]}) {
                 clientMutationId
               }
-            }
-            {
-              labels: ["LA_kwDOHYOSis73zvVw", "LA_kwDOHYOSis73znqb"]
             }' -f issue=$ISSUE_ID -f user=$USER
