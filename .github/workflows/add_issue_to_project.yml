@@ -36,5 +36,5 @@ jobs:
               }
             }
             {
-              labels: "LA_kwDOHYOSis73zvVw", "LA_kwDOHYOSis73znqb"
+              labels: ["LA_kwDOHYOSis73zvVw", "LA_kwDOHYOSis73znqb"]
             }' -f issue=$ISSUE_ID -f user=$USER
