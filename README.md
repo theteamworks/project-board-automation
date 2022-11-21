@@ -62,6 +62,9 @@ This label must be configured in the yaml file and also be present in each of th
 
 ```
 
-$$\textcolor{yellow}{\text{Note: This action has not been fully working with dependabot pull requests and is the subject of further testing. Happy path has been tested. }}$$
+$$\textcolor{orange}{\text{Note: This action has not been fully working with dependabot pull requests and is the subject of further testing. Happy path has been tested. }}$$
 
+<div class="extended-markdown tip border rounded-1 mb-4 p-3 color-border-accent-emphasis color-bg-accent f5">
+<p><strong>Tip:</strong> When you want to display an image which is in your repository, you should use relative links instead of absolute links.</p>
+</div>
 
