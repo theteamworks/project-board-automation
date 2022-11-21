@@ -57,7 +57,8 @@ This label must be configured in the yaml file and also be present in each of th
 > ℹ️ Info: This action has not been fully working with dependabot pull requests and is the subject of further testing. Happy path has been tested.
 
 
-```diff ⚠️ Information
+```diff 
+⚠️ Information
 ! This action has not been fully working with dependabot pull requests and is the subject of further testing. Happy path has been tested.
 
 ```
