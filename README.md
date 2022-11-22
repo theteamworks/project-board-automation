@@ -66,6 +66,6 @@ $$\textcolor{orange}{\text{Note: This action has not been fully working with dep
 
 > ⚠️ Information:
 > ```diff 
->! Note: This action has not been fully working with dependabot pull requests and is the subject of further testing. Happy path has been tested.
+> ! This action has not been fully working with dependabot pull requests and is the subject of further testing. Happy path has been tested.
 > ```
 
