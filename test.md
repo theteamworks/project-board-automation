@@ -63,11 +63,11 @@ Intro to the list - ordered list (numbers) ordered sub-list (letters), with 2nd 
 1. more text
 1. more text
 
-Intro to the list - ordered list (numbers) ordered sub-list (letters), with 2nd ordered sub-list (letters):
+Intro to the list - ordered list (numbers) ordered sub-list 4 spaces (letters):
 
 1. text
 1. text 
-  a. sub text
-  b. sub-sub text
+    a. sub text
+    b. sub-sub text
 1. more text
 1. more text
