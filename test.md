@@ -35,8 +35,8 @@ Ordered 2 sub levels:
 
 1. text
 1. text
-    a. sub text
-        i. sub sub text
-    b. sub-sub text
+    1. sub text
+        1. sub sub text
+    1. sub-sub text
 1. more text
 1. more text
