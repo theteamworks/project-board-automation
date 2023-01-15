@@ -58,7 +58,6 @@ Intro to the list - ordered list (numbers) ordered sub-list (letters), with 2nd 
 
 1. text
 1. text
-  a. sub text
     1. sub-sub text
 1. more text
 1. more text
