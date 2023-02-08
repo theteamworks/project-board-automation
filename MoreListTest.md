@@ -49,7 +49,7 @@ sell 10 @ 100 100`
 1. more listy stuff
 1. even more listy bits
 
-## a heading (number 3)
+## a heading (number 4)
 
 single backtick block as a sublist
 
