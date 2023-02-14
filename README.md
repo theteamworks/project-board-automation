@@ -51,3 +51,5 @@ env:
 In order for the action to know that the pull request does not require the mandate of a planned issue (as per the [no issue required](./docs/Process.md###pull-requests-with-no-issue-required) process) an exclusion label needs to be defined.
 
 This label must be configured in the yaml file and also be present in each of the repositories that the work on the project board may come from.
+
+test for merge queue
