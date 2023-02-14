@@ -8,4 +8,4 @@ This is a test repository  so use at your own peril
 
 Raise a ticket
 
-testing the PR merge queue
+test for merge queue
