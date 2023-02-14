@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-This is a test repo so use at your own peril
+This is a test repository  so use at your own peril
 
 ## Reporting a Vulnerability
 
