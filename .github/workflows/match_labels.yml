@@ -1,0 +1,86 @@
+---
+
+
+name: "Match Labels for Changelog"
+
+"on":
+  pull_request_target:
+    branches: [develop, main]
+    types: [opened, closed]
+
+# Configure the project specific variables
+env:
+  ORGANIZATION: theteamworks
+  PROJECT_NUMBER: 3
+  PR_URL: ${{ github.event.pull_request.html_url }}
+  PR_ID: ${{ github.event.pull_request.node_id }}
+  GH_TOKEN: ${{ secrets.GH_NEW_CARD_TO_PROJECT }}
+  USER: ${{ github.actor }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  label-match:
+    name: "Matches issue labels to PRs"
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+
+      - name: "Get linked issue id and state"
+        id: linked-issue
+        env:
+          GH_TOKEN: ${{ secrets.GH_NEW_CARD_TO_PROJECT }}
+        run: |
+          gh api graphql -f query='
+            query($pr_url: URI!) {
+              resource(url: $pr_url) {
+                ... on PullRequest {
+                  closingIssuesReferences(last: 1) {
+                    nodes {
+                      id
+                      url
+                    }
+                  }
+                }
+              }
+            }'  -f pr_url=$PR_URL > data.json
+          echo 'LINKED_ISSUE_ID='$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json) >> $GITHUB_ENV
+          echo 'LINKED_ISSUE_URL='$(jq '.data.resource.closingIssuesReferences.nodes[] | .url' data.json) >> $GITHUB_ENV
+
+      - name: "Get issues labels"
+        id: get-issue-labels
+        if: |
+          env.LINKED_ISSUE_ID != ''
+        run: |
+          gh api graphql -f query='
+            resource(url: $issue_url) {
+              ... on Issue {
+                labels(last: 10) {
+                  nodes {
+                    id
+                    name
+                  }
+                }
+              }
+            }' -f issue_url=$LINKED_ISSUE_URL
+          echo 'BUG='$(jq '.data.resource.labels.nodes[] | select(.name== "bug") | .id' data.json) >> $GITHUB_ENV
+          echo 'BREAKING='$(jq '.data.resource.labels.nodes[] | select(.name== "breaking-change") | .id' data.json) >> $GITHUB_ENV
+          echo 'DEPRECATE='$(jq '.data.resource.labels.nodes[] | select(.name== "deprecation") | .id' data.json) >> $GITHUB_ENV
+          echo 'VULNERABILITY='$(jq '.data.resource.labels.nodes[] | select(.name== "vulnerability") | .id' data.json) >> $GITHUB_ENV
+          echo 'ENHANCE='$(jq '.data.resource.labels.nodes[] | select(.name== "enhancement") | .id' data.json) >> $GITHUB_ENV
+          echo 'FEATURE='$(jq '.data.resource.labels.nodes[] | select(.name== "feature") | .id' data.json) >> $GITHUB_ENV
+
+      - name: "Add bug label"
+        id: check-labels
+        if: |
+          env.BUG = true
+        run: |
+          gh api graphql -f query='
+            mutation($user:String!, $pr:ID!) {
+              addLabelsToLabelable(input: {clientMutationId: $user, labelableId: $pr, labelIds: [env.BUG]}) {
+                clientMutationId
+              }
+            }' -f pr=$PR_ID -f user=$USER
+
