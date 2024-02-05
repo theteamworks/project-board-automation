@@ -52,4 +52,4 @@ In order for the action to know that the pull request does not require the manda
 
 This label must be configured in the yaml file and also be present in each of the repositories that the work on the project board may come from.
 
-test for merge queue
+test for linked issue label PR
