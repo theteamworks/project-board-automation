@@ -75,7 +75,7 @@ jobs:
       - name: "Add bug label"
         id: check-labels
         if: |
-          env.BUG = true
+          env.BUG != ''
         run: |
           gh api graphql -f query='
             mutation($user:String!, $pr:ID!) {
