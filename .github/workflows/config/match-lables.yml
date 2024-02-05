@@ -12,7 +12,7 @@ name: "Match Labels for Changelog"
 env:
   ORGANIZATION: theteamworks
   PROJECT_NUMBER: 3
-  PR_URL: ${{ github.event.pull_request.url }}
+  PR_URL: ${{ github.event.pull_request.html_url }}
   PR_ID: ${{ github.event.pull_request.node_id }}
   GH_TOKEN: ${{ secrets.GH_NEW_CARD_TO_PROJECT }}
   USER: ${{ github.actor }}
@@ -52,7 +52,7 @@ jobs:
       - name: "Get issues labels"
         id: get-issue-labels
         if: |
-          env.LINKED_ISSUE_URL != ''
+          env.LINKED_ISSUE_ID != ''
         run: |
           gh api graphql -f query='
             resource(url: $issue_url) {
@@ -75,7 +75,7 @@ jobs:
       - name: "Add bug label"
         id: check-labels
         if: |
-          env.BUG != ''
+          env.BUG = true
         run: |
           gh api graphql -f query='
             mutation($user:String!, $pr:ID!) {
