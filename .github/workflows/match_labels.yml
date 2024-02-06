@@ -28,7 +28,7 @@ jobs:
     permissions: write-all
     steps:
 
-      - name: "Get linked issue id and state"
+      - name: "Get linked issue url"
         id: linked-issue
         run: |
           gh api graphql -f query='
@@ -46,7 +46,7 @@ jobs:
             }'  -f pr_url=$PR_URL > data.json
           echo 'LINKED_ISSUE_URL='$(jq -r '.data.resource.closingIssuesReferences.nodes[] | .url' data.json) >> $GITHUB_ENV
 
-      - name: "Get issues labels"
+      - name: "Check issue for applicable labels"
         id: get-issue-labels
         if: |
           env.LINKED_ISSUE_URL != ''
