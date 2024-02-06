@@ -71,6 +71,7 @@ jobs:
           echo 'BREAKING='$(jq '.data.resource.labels.nodes[] | select(.name== "breaking-change") | .id' data.json) >> $GITHUB_ENV
           echo 'DEPRECATE='$(jq '.data.resource.labels.nodes[] | select(.name== "deprecation") | .id' data.json) >> $GITHUB_ENV
           echo 'VULNERABILITY='$(jq '.data.resource.labels.nodes[] | select(.name== "vulnerability") | .id' data.json) >> $GITHUB_ENV
+          echo 'SECURITY='$(jq '.data.resource.labels.nodes[] | select(.name== "security") | .id' data.json) >> $GITHUB_ENV
           echo 'ENHANCE='$(jq '.data.resource.labels.nodes[] | select(.name== "enhancement") | .id' data.json) >> $GITHUB_ENV
           echo 'FEATURE='$(jq '.data.resource.labels.nodes[] | select(.name== "feature") | .id' data.json) >> $GITHUB_ENV
 
@@ -82,7 +83,7 @@ jobs:
           env.BUG != ''
         run: |
           gh api graphql -f query='
-            mutation($user:String!, $pr:ID!) {
+            mutation($user:String!, $pr:ID!, $label:[ID!]!) {
               addLabelsToLabelable(input: {clientMutationId: $user, labelableId: $pr, labelIds: $label}) {
                 clientMutationId
               }
