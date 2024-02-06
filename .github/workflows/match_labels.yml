@@ -64,7 +64,7 @@ jobs:
                   }
                 }
               }
-            }' -f issue_url=$LINKED_ISSUE_URL
+            }' -f issue_url=env.LINKED_ISSUE_URL > data.json
           echo 'BUG='$(jq '.data.resource.labels.nodes[] | select(.name== "bug") | .id' data.json) >> $GITHUB_ENV
           echo 'BREAKING='$(jq '.data.resource.labels.nodes[] | select(.name== "breaking-change") | .id' data.json) >> $GITHUB_ENV
           echo 'DEPRECATE='$(jq '.data.resource.labels.nodes[] | select(.name== "deprecation") | .id' data.json) >> $GITHUB_ENV
