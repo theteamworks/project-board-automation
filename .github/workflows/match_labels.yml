@@ -64,13 +64,15 @@ jobs:
                   }
                 }
               }
-            }' -f issue_url=env.LINKED_ISSUE_URL > data.json
+            }' -f issue_url=${{ LINKED_ISSUE_URL }}
           echo 'BUG='$(jq '.data.resource.labels.nodes[] | select(.name== "bug") | .id' data.json) >> $GITHUB_ENV
           echo 'BREAKING='$(jq '.data.resource.labels.nodes[] | select(.name== "breaking-change") | .id' data.json) >> $GITHUB_ENV
           echo 'DEPRECATE='$(jq '.data.resource.labels.nodes[] | select(.name== "deprecation") | .id' data.json) >> $GITHUB_ENV
           echo 'VULNERABILITY='$(jq '.data.resource.labels.nodes[] | select(.name== "vulnerability") | .id' data.json) >> $GITHUB_ENV
           echo 'ENHANCE='$(jq '.data.resource.labels.nodes[] | select(.name== "enhancement") | .id' data.json) >> $GITHUB_ENV
           echo 'FEATURE='$(jq '.data.resource.labels.nodes[] | select(.name== "feature") | .id' data.json) >> $GITHUB_ENV
+
+      - run: env
 
       - name: "Add bug label"
         id: check-labels
