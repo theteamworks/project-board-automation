@@ -52,7 +52,7 @@ jobs:
       - name: "Get issues labels"
         id: get-issue-labels
         if: |
-          env.LINKED_ISSUE_URL != ''
+          env.LINKED_ISSUE_ID != ''
         run: |
           gh api graphql -f query='
             resource(url: $issue_url) {
@@ -75,7 +75,7 @@ jobs:
       - name: "Add bug label"
         id: check-labels
         if: |
-          env.BUG != ''
+          env.BUG = true
         run: |
           gh api graphql -f query='
             mutation($user:String!, $pr:ID!) {
@@ -83,3 +83,4 @@ jobs:
                 clientMutationId
               }
             }' -f pr=$PR_ID -f user=$USER
+
