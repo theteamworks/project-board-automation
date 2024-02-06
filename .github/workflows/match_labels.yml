@@ -35,7 +35,7 @@ jobs:
         run: |
           gh api graphql -f query='
             query($pr_url: URI!) {
-              resource(url: $pr_url) {
+              resource(url: \$pr_url) {
                 ... on PullRequest {
                   closingIssuesReferences(last: 1) {
                     nodes {
