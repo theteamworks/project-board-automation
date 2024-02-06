@@ -45,7 +45,7 @@ jobs:
                   }
                 }
               }
-            }'  -f pr_url=${{ PR_URL }} > data.json
+            }'  -f pr_url=${{ env.PR_URL }} > data.json
           echo 'LINKED_ISSUE_ID='$(jq '.data.resource.closingIssuesReferences.nodes[] | .id' data.json) >> $GITHUB_ENV
           echo 'LINKED_ISSUE_URL='$(jq '.data.resource.closingIssuesReferences.nodes[] | .url' data.json) >> $GITHUB_ENV
 
