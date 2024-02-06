@@ -64,7 +64,7 @@ jobs:
                   }
                 }
               }
-            }' -f issue_url=$LINKED_ISSUE_URL >> $GITHUB_ENV
+            }' -f issue_url=$LINKED_ISSUE_URL > data.json
           echo 'BUG='$(jq '.data.resource.labels.nodes[] | select(.name== "bug") | .id' data.json) >> $GITHUB_ENV
           echo 'BREAKING='$(jq '.data.resource.labels.nodes[] | select(.name== "breaking-change") | .id' data.json) >> $GITHUB_ENV
           echo 'DEPRECATE='$(jq '.data.resource.labels.nodes[] | select(.name== "deprecation") | .id' data.json) >> $GITHUB_ENV
@@ -81,7 +81,7 @@ jobs:
         run: |
           gh api graphql -f query='
             mutation($user:String!, $pr:ID!) {
-              addLabelsToLabelable(input: {clientMutationId: $user, labelableId: $pr, labelIds: [env.BUG]}) {
+              addLabelsToLabelable(input: {clientMutationId: $user, labelableId: $pr, labelIds: $label}) {
                 clientMutationId
               }
-            }' -f pr=$PR_ID -f user=$USER
+            }' -f label=$BUG -f pr=$PR_ID -f user=$USER
