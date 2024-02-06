@@ -3,7 +3,7 @@
 
 Edits to come, once the release notes have been updated.
 
-An action that will automate the movement of the issues or pull requests on a GitHub projects(beta) board.
+An action that will automate the movement of the issues or pull requests on a GitHub projects(beta) board..
 
 Before thinking of using this check out the following info and understand the assumptions made and the context it was designed for.
 
