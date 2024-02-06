@@ -45,7 +45,7 @@ jobs:
                   }
                 }
               }
-            }'  -f pr_url=${{ env.PR_URL }} > data.json
+            }'  -f pr_url=$PR_URL > data.json
           echo 'LINKED_ISSUE_ID='$(jq -r '.data.resource.closingIssuesReferences.nodes[] | .id' data.json) >> $GITHUB_ENV
           echo 'LINKED_ISSUE_URL='$(jq -r '.data.resource.closingIssuesReferences.nodes[] | .url' data.json) >> $GITHUB_ENV
 
@@ -55,12 +55,14 @@ jobs:
           env.LINKED_ISSUE_URL != ''
         run: |
           gh api graphql -f query='
-            resource(url: $issue_url) {
-              ... on Issue {
-                labels(last: 10) {
-                  nodes {
-                    id
-                    name
+            query($issue_url: URI!) {
+              resource(url: $issue_url) {
+                ... on Issue {
+                  labels(last: 10) {
+                    nodes {
+                      id
+                      name
+                    }
                   }
                 }
               }
